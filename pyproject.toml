@@ -1,0 +1,12 @@
+[tool.pyright]
+typeCheckingMode = "basic"
+
+[tool.pylint.messages_control]
+disable = ["C0115"]
+
+[tool.pylint.format]
+max-line-length = 400
+
+[tool.pytest.ini_options]
+env_files = ".test.env"
+testpaths = ["tests"]
