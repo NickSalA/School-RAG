@@ -1,18 +1,18 @@
 """Subida y sincronización de documentos con Azure Cognitive Search."""
 
 # Utilitarios para sincronización de documentos con Azure Cognitive Search
-import os, time, shutil
-from llama_index.core import Settings
-from llama_index.embeddings.google_genai import GoogleGenAIEmbedding
+import os
+import time
+import shutil
+
 from llama_index.core import VectorStoreIndex, StorageContext
 from llama_index.core.node_parser import SentenceWindowNodeParser
 
 # Helpers propios
-from app.core.knowledge import get_vector_store, get_analyzer, connect_vectorial_client
+from app.core.services.knowledge import get_vector_store, get_analyzer, connect_vectorial_client
+from app.core.services.llm import configure_embedding
 from app.util.sincronizer import clean_content, get_files, delete_collection_points
 
-# Configuración y excepciones
-from app.core.config import settings
 from app.exceptions.cloud import DocumentAIError
 
 def read_document(file_path: str):
@@ -31,13 +31,6 @@ def get_node_parser():
     )
     return node_parser
 
-def configure_embedding():
-    """Configura el modelo de embedding Google GenAI para su uso en el proyecto."""
-    Settings.embed_model = GoogleGenAIEmbedding(
-        model_name=settings.GEMINI_EMBEDDING_MODEL_NAME,
-        api_key=settings.MODEL_API_KEY,
-    )
-
 def upload_file(file_path:str, index: str) -> bool:
     """Sube un archivo al vector store después de procesarlo y crear un índice."""
     client = connect_vectorial_client()
@@ -45,6 +38,7 @@ def upload_file(file_path:str, index: str) -> bool:
     node_parser = get_node_parser()
     storage_context = StorageContext.from_defaults(vector_store=vector_store)
     filename = os.path.basename(file_path)
+    
     try:
         delete_collection_points(client, index, "filename", filename)
         document = read_document(file_path)

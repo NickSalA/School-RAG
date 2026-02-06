@@ -4,10 +4,10 @@
 from langchain_core.tools import Tool
 
 # Helpers propios
-from app.core.knowledge import get_retriever
+from app.core.services.retriever import get_retriever
 
 # Utilitario para crear tool de base de conocimientos
-from app.util.retriever import create_retriever_tool
+from app.util.retriever.create_retriever import create_retriever_tool
 
 def bc_tool(index: str) -> Tool:
     """Crear una herramienta de base de conocimientos para el agente."""

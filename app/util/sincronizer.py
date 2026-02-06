@@ -45,6 +45,10 @@ def clean_content(documents: List[Document]):
 
 def delete_collection_points(client: QdrantClient, index: str, key: str, value: str):
     """Elimina puntos de una colección en Qdrant basados en una clave de metadatos."""
+
+    if not client.collection_exists(index):
+        return
+
     client.delete(
         collection_name=index,
         points_selector=models.FilterSelector(

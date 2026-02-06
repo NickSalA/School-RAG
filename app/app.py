@@ -13,7 +13,7 @@ from pydantic import ValidationError
 import uvicorn
 
 # Excepciones personalizadas
-from app.core.exceptions import AzureAuthError
+from app.exceptions.cloud import AzureAuthError
 
 # Importar gestor de secretos
 try:

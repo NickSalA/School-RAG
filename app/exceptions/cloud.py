@@ -8,6 +8,10 @@ class ExternalServiceError(AppError):
 
 
 # Secretos
+
+class AzureAuthError(ExternalServiceError):
+    """Error de autenticación con Azure Key Vault."""
+    status_code = 503
 class SecretError(ExternalServiceError):
     """Error genérico relacionado con la gestión de secretos."""
     status_code = 502
@@ -62,7 +66,8 @@ class GenerativeAIContentError(GenerativeAIError):
 class GenerativeAIModelError(GenerativeAIError):
     """Error interno relacionado con el modelo generativo."""
     status_code = 500
-    
+
 class AgentExecutionError(GenerativeAIError):
     """Error durante la ejecución del agente conversacional."""
     status_code = 500
+

@@ -13,6 +13,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.sessions import SessionMiddleware
 
 # Configuración del sistema
+from app.core import config
 from app.core.config import settings
 
 # Configuración de logging
@@ -22,7 +23,9 @@ from app.core.logger import setup
 from app.core.middleware import LoguruMiddleware
 
 # Excepciones personalizadas
-from app.exceptions.exceptions import AppError
+from app.exceptions.base import AppError
+
+from app.core.services.llm import configure_embedding
 
 # Routers
 from app.router.router import router as chat_router
@@ -37,6 +40,7 @@ def create() -> FastAPI:
         Context manager para el ciclo de vida de la aplicación.
         """
         setup()
+        configure_embedding()
         logger.info("Iniciando la aplicación Posgrado Backend...")
         yield
         logger.info("Cerrando la aplicación Posgrado Backend...")

@@ -4,7 +4,7 @@
 from app.agents.agent import CreateAgentFlow
 # Importa el modelo de lenguaje
 
-from app.core.llm import get_llm
+from app.core.services.llm import get_llm
 
 # Importa la herramienta para buscar en la base de conocimientos
 from app.tools.bc_tool import bc_tool
@@ -88,7 +88,7 @@ class FlowAgent:
         self.llm = get_llm()
         self.agent_flow = CreateAgentFlow(
             llm=self.llm,
-            tools = [bc_tool("pucp-index")],
+            tools = [bc_tool("test_flow")],
             memory= get_checkpointer(),
             context=prompt_system(),
             checkpoint_ns="pucp-demo",
