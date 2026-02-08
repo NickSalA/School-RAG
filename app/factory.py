@@ -13,7 +13,6 @@ from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.sessions import SessionMiddleware
 
 # Configuración del sistema
-from app.core import config
 from app.core.config import settings
 
 # Configuración de logging
@@ -25,10 +24,10 @@ from app.core.middleware import LoguruMiddleware
 # Excepciones personalizadas
 from app.exceptions.base import AppError
 
-from app.core.services.llm import configure_embedding
+from app.adapters.gemini import configure_embedding
 
 # Routers
-from app.router.router import router as chat_router
+from app.api.routes.router import router as chat_router
 
 
 def create() -> FastAPI:
@@ -47,7 +46,7 @@ def create() -> FastAPI:
 
     app = FastAPI(title=settings.PROJECT_NAME, version="1.0.0", lifespan=lifespan)
 
-    app.include_router(chat_router, prefix=f"{settings.GLOBAL_PREFIX}/estudiantes", tags=["Chat"])
+    app.include_router(chat_router, prefix=f"{settings.GLOBAL_PREFIX}/chat", tags=["Chat"])
 
     # CORS (ajusta origins a tu front real)
     app.add_middleware(

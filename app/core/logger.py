@@ -74,7 +74,8 @@ def setup():
     logging.getLogger("uvicorn.error").propagate = False
     logging.getLogger("uvicorn.access").setLevel(logging.WARNING)
     logging.getLogger("uvicorn.error").setLevel(logging.CRITICAL)
-
+    logging.getLogger("httpx").setLevel(logging.WARNING)
+    logging.getLogger("httpcore").setLevel(logging.WARNING)
     logging.getLogger("uvicorn").handlers = []
     logging.getLogger("uvicorn").propagate = False
 

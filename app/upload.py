@@ -1,6 +1,6 @@
 """Script para subir archivos desde una carpeta específica al sistema de almacenamiento."""
 import os
-from app.core.sync import upload_files_from_folder
+from app.services.documents import upload_files_from_folder
 
 # Obtiene la ruta absoluta de la carpeta 'files' dentro de 'app'
 APP_DIR = os.path.dirname(os.path.abspath(__file__))

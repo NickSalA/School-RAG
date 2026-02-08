@@ -1,16 +1,19 @@
-"""Flujo para el agente tutor personalizado por usuario"""
+"""Agente de asistencia normativa y permanencia estudiantil.
 
-# Importa el agente tutor
-from app.agents.agent import CreateAgentFlow
+Este módulo implementa el FlowAgent, un asistente especializado en ayudar a estudiantes a encontrar soluciones normativas para evitar la deserción universitaria.
+"""
+
+# Importa el wrapper base del agente
+from app.agents.base import BaseAgent
+
 # Importa el modelo de lenguaje
-
-from app.core.services.llm import get_llm
+from app.adapters.gemini import get_llm
 
 # Importa la herramienta para buscar en la base de conocimientos
-from app.tools.bc_tool import bc_tool
+from app.agents.tools.bc_tool import bc_tool
 
 # Importa el checkpointer para la memoria
-from app.core.checkpointer import get_checkpointer
+from app.agents.checkpointer import get_checkpointer
 
 def prompt_system() -> str:
     """Generar el prompt del sistema para el agente."""
@@ -86,7 +89,7 @@ def prompt_system() -> str:
 class FlowAgent:
     def __init__(self):
         self.llm = get_llm()
-        self.agent_flow = CreateAgentFlow(
+        self.agent_flow = BaseAgent(
             llm=self.llm,
             tools = [bc_tool("test_flow")],
             memory= get_checkpointer(),
@@ -98,6 +101,6 @@ class FlowAgent:
         """Respuesta del agente"""
         return await self.agent_flow.answer(message, thread_id)
 
-    def reset_memory(self) -> str:
-        """Reseteo de memoria"""
-        return self.agent_flow.reset_memory()
+    def generate_thread_id(self) -> str:
+        """Generar un nuevo ID de hilo para resetear la memoria"""
+        return self.agent_flow.generate_thread_id()

@@ -2,8 +2,8 @@
 
 from llama_index.core import VectorStoreIndex
 
-from app.core.services.knowledge import get_vector_store, connect_vectorial_client
-from app.util.retriever.retriever import LlamaIndexWindowRetriever
+from app.adapters.qdrant import get_vector_store, connect_vectorial_client
+from app.util.retriever import LlamaIndexWindowRetriever
 
 def get_retriever(collection_name: str):
     """Obtener un retriever de LlamaIndex configurado con el índice dado.

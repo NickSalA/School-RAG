@@ -8,11 +8,16 @@ import shutil
 from llama_index.core import VectorStoreIndex, StorageContext
 from llama_index.core.node_parser import SentenceWindowNodeParser
 
-# Helpers propios
-from app.core.services.knowledge import get_vector_store, get_analyzer, connect_vectorial_client
-from app.core.services.llm import configure_embedding
-from app.util.sincronizer import clean_content, get_files, delete_collection_points
+# Adapters para servicios externos
+from app.adapters.qdrant import get_vector_store, connect_vectorial_client
+from app.adapters.llamaparse import get_analyzer
+from app.adapters.gemini import configure_embedding
 
+# Utilitarios para procesamiento de texto y manejo de archivos
+from app.util.text import clean_content
+from app.util.files import get_files, delete_collection_points
+
+# Excepciones personalizadas
 from app.exceptions.cloud import DocumentAIError
 
 def read_document(file_path: str):

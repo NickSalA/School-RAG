@@ -1,4 +1,4 @@
-"""Agente con memoria, personalizado por usuario"""
+"""Wrapper para crear y gestionar agentes conversacionales con memoria persistente."""
 
 # Manejo de UUID para identificar sesiones de usuario
 import uuid
@@ -7,9 +7,9 @@ import uuid
 from langchain_google_genai import ChatGoogleGenerativeAI
 
 # Utilitarios para crear y ejecutar agentes
-from app.core.agent import get_agent, execute
+from app.util.agent import get_agent, execute
 
-class CreateAgentFlow:
+class BaseAgent:
     def __init__(self,
         llm: ChatGoogleGenerativeAI,
         context: str,
@@ -26,14 +26,15 @@ class CreateAgentFlow:
 
     async def answer(self, consulta: str = "", thread_id: str = ""):
         """Responder una consulta usando el agente con memoria."""
-        return await execute(self.agent, consulta, config={
+        config={
                 "configurable": {
                     "thread_id": f"{thread_id}",
                     "checkpoint_ns": f"{self.checkpoint_ns}",
                 }
-            })
+            }
+        return await execute(self.agent, consulta, config=config)
 
-    def reset_memory(self) -> str:
-        """Resetear la memoria del agente generando un nuevo ID de hilo."""
+    def generate_thread_id(self) -> str:
+        """Generar un nuevo ID de hilo para resetear la memoria."""
         thread = f"user:{'anon'}-{uuid.uuid4().hex}"
         return thread

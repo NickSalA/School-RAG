@@ -2,8 +2,8 @@
 
 from fastapi import APIRouter, HTTPException
 
-from app.core.schema import AgentMessageJson, ChatIn
-from app.flow.flow import FlowAgent
+from app.api.schema import AgentMessageJson, ChatIn
+from app.agents.flow import FlowAgent
 
 router = APIRouter()
 
@@ -14,7 +14,7 @@ async def agente(body: ChatIn):
     thread = body.thread_id
 
     if not thread:
-        thread = orq.reset_memory()
+        thread = orq.generate_thread_id()
     try:
         respuesta = await orq.answer_message(body.mensaje, thread)
 

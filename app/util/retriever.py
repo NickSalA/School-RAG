@@ -1,4 +1,8 @@
-"""Retriever tool."""
+"""Adaptador de LlamaIndex Retriever para LangChain.
+
+Implementa un retriever compatible con LangChain que usa internamente
+LlamaIndex con post-procesamiento de ventana de contexto (SentenceWindowRetrieval).
+"""
 
 from typing import List, Any, Optional
 from langchain_core.retrievers import BaseRetriever

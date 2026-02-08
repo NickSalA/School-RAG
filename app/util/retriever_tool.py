@@ -1,4 +1,13 @@
-"""Retriever tool."""
+"""Fork de langchain_core.tools.retriever.create_retriever_tool.
+
+NOTA: Esta es una versión modificada de la función oficial de LangChain.
+La versión original dejó de funcionar correctamente tras una actualización
+de LangChain que introdujo incompatibilidades. Este archivo puede eliminarse
+cuando upstream arregle el issue.
+
+Provee funciones para envolver un BaseRetriever en una Tool de LangChain,
+permitiendo su uso en agentes conversacionales.
+"""
 
 from __future__ import annotations
 from typing import TYPE_CHECKING, Literal

@@ -5,7 +5,6 @@ name = "pypi"
 
 [packages]
 pydantic-settings = "*"
-pydantic="*"
 langchain-google-genai = "*"
 langgraph = "*"
 langchain = "*"
@@ -29,8 +28,9 @@ logtail-python = "*"
 pytest = "*"
 
 [scripts]
-start = "uvicorn app.app:app --reload"
+start = "uvicorn app.main:app --reload"
 upload = "python3 -m app.upload"
 
 [requires]
+
 python_version = "3.12"

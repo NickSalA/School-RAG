@@ -1,4 +1,4 @@
-"""Definición y ejecución de agentes conversacionales."""
+"""Funciones utilitarias para crear y ejecutar agentes de LangGraph."""
 
 # Utilitario para crear y ejecutar agentes
 from langchain.agents import create_agent
