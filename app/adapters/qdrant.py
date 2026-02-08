@@ -2,29 +2,61 @@
 
 from qdrant_client import QdrantClient
 from llama_index.vector_stores.qdrant import QdrantVectorStore
-# Helpers propios
-from app.core.config import settings
 
-def connect_vectorial_client():
-    """ Conectar al cliente de Qdrant.
+from app.core.config import settings
+from app.exceptions.database import (
+    VectorStoreConnectionError,
+    VectorStoreCollectionNotFoundError,
+)
+
+
+def connect_vectorial_client() -> QdrantClient:
+    """Conectar al cliente de Qdrant.
+    
     Returns:
         QdrantClient: Instancia del cliente de Qdrant.
+    
+    Raises:
+        VectorStoreConnectionError: Si no se puede conectar al servidor.
     """
-    client = QdrantClient(
-        port=settings.QDRANT_PORT,
-        url=settings.QDRANT_HOST
-    )
-    return client
+    try:
+        client = QdrantClient(
+            port=settings.QDRANT_PORT,
+            url=settings.QDRANT_HOST
+        )
+        # Verificar conexión
+        client.get_collections()
+        return client
+    except Exception as e:
+        raise VectorStoreConnectionError(
+            f"No se pudo conectar a Qdrant: {e}") from e
 
-def get_vector_store(client: QdrantClient, index_name: str):
-    """ Obtener el vector store de Qdrant.
+
+def get_vector_store(client: QdrantClient, index_name: str) -> QdrantVectorStore:
+    """Obtener el vector store de Qdrant.
+    
     Args:
-        index_name (str): Nombre del índice en Qdrant.
+        client: Cliente de Qdrant conectado.
+        index_name: Nombre de la colección en Qdrant.
+    
     Returns:
         QdrantVectorStore: Instancia del vector store.
+    
+    Raises:
+        VectorStoreCollectionNotFoundError: Si la colección no existe.
     """
-    vector_store = QdrantVectorStore(
-        client=client,
-        collection_name=index_name
-    )
-    return vector_store
+    try:
+        # Verificar que la colección existe
+        if not client.collection_exists(index_name):
+            raise VectorStoreCollectionNotFoundError(
+                f"La colección '{index_name}' no existe en Qdrant."
+            )
+
+        return QdrantVectorStore(
+            client=client,
+            collection_name=index_name
+        )
+    except VectorStoreCollectionNotFoundError:
+        raise
+    except Exception as e:
+        raise VectorStoreConnectionError(f"Error al obtener vector store '{index_name}': {e}") from e

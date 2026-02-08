@@ -43,7 +43,7 @@ def upload_file(file_path:str, index: str) -> bool:
     node_parser = get_node_parser()
     storage_context = StorageContext.from_defaults(vector_store=vector_store)
     filename = os.path.basename(file_path)
-    
+
     try:
         delete_collection_points(client, index, "filename", filename)
         document = read_document(file_path)

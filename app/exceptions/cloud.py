@@ -54,7 +54,7 @@ class GenerativeAIError(ExternalServiceError):
 class GenerativeAIQuotaError(GenerativeAIError):
     """Se ha excedido la cuota asignada para el uso del modelo generativo."""
     status_code = 429
-    
+
 class GenerativeAITimeoutError(GenerativeAIError):
     """La solicitud al modelo generativo tardó demasiado en procesarse."""
     status_code = 504
@@ -71,3 +71,12 @@ class AgentExecutionError(GenerativeAIError):
     """Error durante la ejecución del agente conversacional."""
     status_code = 500
 
+
+class AgentNotAvailableError(GenerativeAIError):
+    """El agente no está disponible o no pudo inicializarse."""
+    status_code = 503
+
+
+class AgentResponseError(GenerativeAIError):
+    """Error al procesar la respuesta del agente."""
+    status_code = 500
