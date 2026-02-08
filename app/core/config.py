@@ -76,7 +76,7 @@ def get_secret(name: str) -> str:
     return SecretManager.get_secret(name)
 
 class Settings(BaseSettings):
-    PROJECT_NAME: str = "PUCP API"
+    PROJECT_NAME: str = "SCHOOL-RAG"
     LOG_LEVEL: str = "INFO"
     GLOBAL_PREFIX: str = "/api/v1"
     CORS_ORIGINS: list[str] = ["http://localhost:8000", "http://localhost:3000"]
