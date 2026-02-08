@@ -1,16 +1,16 @@
 """Router para el agente de flujo."""
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 
 from app.api.schema import AgentMessageJson, ChatIn
 from app.agents.flow import FlowAgent
+from app.api.dependencies import get_flow_agent
 
 router = APIRouter()
 
 @router.post("/chat", response_model=AgentMessageJson)
-async def agente(body: ChatIn):
+async def agente(body: ChatIn, orq: FlowAgent = Depends(get_flow_agent)):
     """Endpoint para interactuar con el agente de flujo."""
-    orq = FlowAgent()
     thread = body.thread_id
 
     if not thread:
