@@ -22,9 +22,10 @@ qdrant-client = "*"
 llama-parse = "*"
 llama-index-embeddings-google-genai = "*"
 loguru = "*"
+python-multipart = "*"
 logtail-python = "*"
-[dev-packages]
 
+[dev-packages]
 pytest = "*"
 
 [scripts]
@@ -32,5 +33,4 @@ start = "uvicorn app.main:app --reload"
 upload = "python3 -m app.upload"
 
 [requires]
-
 python_version = "3.12"

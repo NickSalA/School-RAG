@@ -10,3 +10,6 @@ class AgentMessageJson(BaseModel):
 class ChatIn(BaseModel):
     mensaje: str = Field (default="string", description="El mensaje del usuario al agente.")
     thread_id: Optional[str] = Field (default=None, description="El ID único de la conversación. Enviar 'null' o 'None' si es el primer mensaje.")
+
+class DocumentJSON(BaseModel):
+    message: str = Field(default="string", description="Mensaje de respuesta al subir el documento.")

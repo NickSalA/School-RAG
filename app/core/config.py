@@ -95,6 +95,12 @@ class Settings(BaseSettings):
     BETTER_STACK_TOKEN: str = Field(default_factory=lambda: get_secret("BETTER-STACK-TOKEN"))
     BETTER_STACK_HOST: str = Field(default=...)
 
+    INDEX_NAME: str = Field(default="school_rag_index")
+
+    ALLOWED_FILE_TYPES: list[str] = Field(default=["application/pdf", "text/plain"])
+    MAX_FILE_SIZE: int = Field(default=5)
+    MAX_NUM_PAGES: int = Field(default=10)
+
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",

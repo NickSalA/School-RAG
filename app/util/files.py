@@ -35,3 +35,14 @@ def delete_collection_points(client: QdrantClient, index: str, key: str, value: 
             )
         )
     )
+
+def ensure_collection_exists(client: QdrantClient, index: str):
+    """Asegura que una colección exista en Qdrant, si no existe la crea."""
+    if not client.collection_exists(index):
+        client.recreate_collection(
+            collection_name=index,
+            vectors_config=models.VectorParams(
+                size=3072,
+                distance=models.Distance.COSINE
+            )
+        )

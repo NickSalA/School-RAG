@@ -38,6 +38,7 @@ def configure_embedding() -> None:
         Settings.embed_model = GoogleGenAIEmbedding(
             model_name=settings.GEMINI_EMBEDDING_MODEL_NAME,
             api_key=settings.MODEL_API_KEY,
+            fast_mode=True,
         )
     except Exception as e:
         raise GenerativeAIModelError(f"Error al configurar modelo de embeddings: {e}") from e

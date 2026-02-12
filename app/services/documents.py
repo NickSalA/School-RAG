@@ -4,6 +4,7 @@
 import os
 import time
 import shutil
+import tempfile
 
 from llama_index.core import VectorStoreIndex, StorageContext
 from llama_index.core.node_parser import SentenceWindowNodeParser
@@ -15,7 +16,7 @@ from app.adapters.gemini import configure_embedding
 
 # Utilitarios para procesamiento de texto y manejo de archivos
 from app.util.text import clean_content
-from app.util.files import get_files, delete_collection_points
+from app.util.files import get_files, delete_collection_points, ensure_collection_exists
 
 # Excepciones personalizadas
 from app.exceptions.cloud import DocumentAIError
@@ -36,9 +37,10 @@ def get_node_parser():
     )
     return node_parser
 
-def upload_file(file_path:str, index: str) -> bool:
+def upload_file_path(file_path:str, index: str) -> bool:
     """Sube un archivo al vector store después de procesarlo y crear un índice."""
     client = connect_vectorial_client()
+    ensure_collection_exists(client, index)
     vector_store = get_vector_store(client, index)
     node_parser = get_node_parser()
     storage_context = StorageContext.from_defaults(vector_store=vector_store)
@@ -64,6 +66,21 @@ def upload_file(file_path:str, index: str) -> bool:
     except Exception as e:
         raise DocumentAIError(f"Error al crear el índice: {e}") from e
 
+def upload_file(file, index: str) -> bool:
+    """Sube un archivo recibido a través de la API al vector store después de procesarlo."""
+    temp_dir = tempfile.mkdtemp()
+    try:
+        safe_filename = os.path.basename(file.filename)
+        temp_path = os.path.join(temp_dir, safe_filename)
+        with open(temp_path, "wb") as temp_file:
+            shutil.copyfileobj(file.file, temp_file)
+        return upload_file_path(temp_path, index)
+    except Exception as e:
+        raise DocumentAIError(f"Error al subir el archivo: {e}") from e
+
+    finally:
+        shutil.rmtree(temp_dir, ignore_errors=True)
+
 def upload_files_from_folder(folder_path: str = "", index: str = ""):
     """Carga todos los archivos de una carpeta a la base de conocimiento."""
     error_folder = os.path.join(folder_path, "error_files")
@@ -82,7 +99,7 @@ def upload_files_from_folder(folder_path: str = "", index: str = ""):
 
                 print(f"procesando: {filename}...")
 
-                success = upload_file(file_path, index)
+                success = upload_file_path(file_path, index)
 
                 if success:
                     try:

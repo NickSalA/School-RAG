@@ -27,8 +27,8 @@ from app.exceptions.base import AppError
 from app.adapters.gemini import configure_embedding
 
 # Routers
-from app.api.routes.router import router as chat_router
-
+from app.api.routes.chat_router import router as chat_router
+from app.api.routes.upload_router import router as upload_router
 
 def create() -> FastAPI:
     """Crea y configura la aplicación FastAPI."""
@@ -47,6 +47,7 @@ def create() -> FastAPI:
     app = FastAPI(title=settings.PROJECT_NAME, version="1.0.0", lifespan=lifespan)
 
     app.include_router(chat_router, prefix=f"{settings.GLOBAL_PREFIX}/chat", tags=["Chat"])
+    app.include_router(upload_router, prefix=f"{settings.GLOBAL_PREFIX}/upload", tags=["Upload"])
 
     # CORS (ajusta origins a tu front real)
     app.add_middleware(
