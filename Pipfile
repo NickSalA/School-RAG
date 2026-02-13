@@ -24,7 +24,7 @@ llama-index-embeddings-google-genai = "*"
 loguru = "*"
 python-multipart = "*"
 logtail-python = "*"
-
+google-api-core = "*"
 [dev-packages]
 pytest = "*"
 

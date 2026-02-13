@@ -4,12 +4,14 @@
 from langchain.agents import create_agent
 
 # Utilitario para el modelo de lenguaje
+from langchain_core.messages import AIMessage
 from langchain_google_genai import ChatGoogleGenerativeAI
 
 # Manejo de memoria del agente
 from langgraph.checkpoint.memory import InMemorySaver
 
-from app.exceptions.cloud import AgentExecutionError
+from google.api_core.exceptions import ServiceUnavailable, ResourceExhausted, DeadlineExceeded, Aborted
+from app.exceptions.cloud import AgentExecutionError, AgentNotAvailableError, AgentResponseError, GenerativeAIQuotaError, GenerativeAITimeoutError
 
 def get_agent(
     llm: ChatGoogleGenerativeAI,
@@ -29,17 +31,29 @@ async def execute(agent, query: str = "", config=None, verbose: bool = True):
     """Ejecutar el agente con la consulta dada y configuración opcional."""
     payload = {"messages": [{"role": "user", "content": query}]}
 
-    response = await agent.ainvoke(payload, config=config)
     try:
+        response = await agent.ainvoke(payload, config=config)
         if not verbose:
             return response
-        response = response["messages"][-1].content
+        if not response or "messages" not in response or not response["messages"]:
+            raise AgentExecutionError("Respuesta inválida del agente.")
 
-        if isinstance(response, str):
-            return response
+        response = response["messages"][-1]
 
-        response = response[0].get("text", "")
+        if isinstance(response, AIMessage):
+            if response.content:
+                return str(response.content)
+            if response.tool_calls:
+                raise AgentExecutionError("El agente intentó usar una herramienta, pero no se esperaba.")
 
-        return response
+        return str(response.content)
+    except (ServiceUnavailable, Aborted) as e:
+        raise AgentNotAvailableError(f'El agente no está disponible: {e}') from e
+    except ResourceExhausted as e:
+        raise GenerativeAIQuotaError(f'El agente ha alcanzado su límite de recursos: {e}') from e
+    except DeadlineExceeded as e:
+        raise GenerativeAITimeoutError(f'El agente ha excedido el tiempo de espera: {e}') from e
+    except (KeyError, IndexError, AttributeError) as e:
+        raise AgentResponseError(f'Error al procesar la respuesta del agente: {e}') from e
     except Exception as e:
         raise AgentExecutionError(f'Error en la ejecución del agente: {e}') from e

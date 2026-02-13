@@ -46,3 +46,24 @@ def ensure_collection_exists(client: QdrantClient, index: str):
                 distance=models.Distance.COSINE
             )
         )
+
+def get_collection_points(client: QdrantClient, index: str) -> List[str]:
+    """Obtiene puntos de una colección en Qdrant basados en una clave de metadatos."""
+
+    filenames = set()
+    next_offset = None
+
+    while True:
+        search_result, next_offset = client.scroll(
+            collection_name=index,
+            with_vectors=False,
+            with_payload=["filename"],
+            offset=next_offset,
+            limit=1000
+    )
+        filenames.update({point.payload.get("filename") for point in search_result if point.payload})
+        if next_offset is None:
+            break
+
+    filenames.discard(None)
+    return list(filenames)

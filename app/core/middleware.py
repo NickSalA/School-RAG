@@ -36,8 +36,17 @@ class LoguruMiddleware(BaseHTTPMiddleware):
             response = await call_next(request)
             process_time = time.time() - start_time
             response.headers["X-Request-ID"] = request_id
-            logger.info(
+
+            log_message = (
                 f"{request.method} {request.url.path} | Request: {response.status_code} "
                 f"(Tiempo: {process_time:.2f}s)"
             )
+
+            if response.status_code >= 500:
+                logger.error(log_message)
+            elif response.status_code >= 400:
+                logger.warning(log_message)
+            else:
+                logger.info(log_message)
+
             return response

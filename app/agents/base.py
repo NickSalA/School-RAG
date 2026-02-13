@@ -13,16 +13,12 @@ class BaseAgent:
     def __init__(self,
         llm: ChatGoogleGenerativeAI,
         context: str,
-        checkpoint_ns: str = "pucp-demo",
+        checkpoint_ns: str = "school-rag",
         tools: list | None = None,
         memory=None,
     ):
-        self.llm = llm
-        self.context = context
-        self.tools = tools or []
         self.checkpoint_ns = checkpoint_ns
-        self.memory = memory
-        self.agent = get_agent(llm, context, self.tools, self.memory)
+        self.agent = get_agent(llm, context, tools or [], memory)
 
     async def answer(self, consulta: str = "", thread_id: str = ""):
         """Responder una consulta usando el agente con memoria."""

@@ -19,9 +19,5 @@ async def agente(body: ChatIn, orq: FlowAgentDep):
     if not thread:
         thread = orq.generate_thread_id()
 
-    try:
-        respuesta = await orq.answer_message(body.mensaje, thread)
-    except Exception as e:
-        raise AgentResponseError(f"Error al procesar mensaje: {e}") from e
-
+    respuesta = await orq.answer_message(body.mensaje, thread)
     return AgentMessageJson(text=respuesta, thread_id=thread)
