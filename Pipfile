@@ -25,6 +25,7 @@ loguru = "*"
 python-multipart = "*"
 logtail-python = "*"
 google-api-core = "*"
+griffe = "<1.0.0"
 [dev-packages]
 pytest = "*"
 

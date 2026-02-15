@@ -46,7 +46,7 @@ def create() -> FastAPI:
 
     app = FastAPI(title=settings.PROJECT_NAME, version="1.0.0", lifespan=lifespan)
 
-    app.include_router(chat_router, prefix=f"{settings.GLOBAL_PREFIX}/agent", tags=["Agente"])
+    app.include_router(chat_router, prefix=settings.GLOBAL_PREFIX, tags=["Chat"])
     app.include_router(documents_router, prefix=f"{settings.GLOBAL_PREFIX}/documents", tags=["Documentos"])
 
     # CORS (ajusta origins a tu front real)

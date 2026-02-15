@@ -9,4 +9,4 @@ FILES_FOLDER = os.path.join(APP_DIR, "files")
 if not os.path.exists(FILES_FOLDER):
     print("⚠️ La carpeta de archivos no existe. Por favor, crea la carpeta 'files' dentro de 'app'.")
 
-upload_files_from_folder(FILES_FOLDER, index="pronabec")
+upload_files_from_folder(FILES_FOLDER, index="edu")

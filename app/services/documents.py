@@ -25,6 +25,11 @@ from app.util.files import get_files, delete_collection_points, ensure_collectio
 # Excepciones personalizadas
 from app.exceptions.cloud import DocumentAIError, DocumentTimeoutError
 
+#Pipeline
+from llama_index.core.ingestion import IngestionPipeline
+from llama_index.core.storage.docstore import SimpleDocumentStore
+from llama_index.core import Settings
+
 def read_document(file_path: str):
     """Lee y procesa un documento usando LlamaParse."""
 
@@ -41,38 +46,88 @@ def get_node_parser():
     )
     return node_parser
 
-def upload_file_path(file_path:str, index: str) -> bool:
-    """Sube un archivo al vector store después de procesarlo y crear un índice."""
+def upload_file_path(file_path: str, index: str) -> bool:
+    """Sube un archivo usando un Ingestion Pipeline con persistencia."""
     client = connect_vectorial_client()
     ensure_collection_exists(client, index)
     vector_store = get_vector_store(client, index)
 
-    try:
-        node_parser = get_node_parser()
-        storage_context = StorageContext.from_defaults(vector_store=vector_store)
-        filename = os.path.basename(file_path)
+    # 1. Configurar la persistencia del estado (Memoria del progreso)
+    storage_dir = "./storage"
+    os.makedirs(storage_dir, exist_ok=True)
+    # Un docstore por índice para evitar mezclar documentos
+    docstore_path = os.path.join(storage_dir, f"docstore_{index}.json")
 
-        delete_collection_points(client, index, "filename", filename)
+    if os.path.exists(docstore_path):
+        docstore = SimpleDocumentStore.from_persist_path(docstore_path)
+    else:
+        docstore = SimpleDocumentStore()
+
+    try:
+        filename = os.path.basename(file_path)
         document = read_document(file_path)
 
+        # Asignar metadatos básicos
         for i, doc in enumerate(document):
             doc.id_ = f"{filename}_doc_{i}"
             doc.metadata["filename"] = filename
 
-        chunks = clean_content(document)
-        VectorStoreIndex.from_documents(
-            chunks,
-            storage_context=storage_context,
-            node_parser=node_parser,
-            show_progress=True,
+        # 2. Definir el Pipeline
+        # Aquí sumamos: Parser -> Embeddings -> Qdrant
+        pipeline = IngestionPipeline(
+            transformations=[
+                get_node_parser(),
+                Settings.embed_model, # El que configuramos con batch_size=1
+            ],
+            vector_store=vector_store,
+            docstore=docstore, # El pipeline revisará aquí qué nodos ya existen
         )
+
+        # 3. Ejecutar la ingesta
+        # Si falla al 90%, lo que ya se subió se queda marcado en el docstore
+        pipeline.run(documents=document, show_progress=True)
+
+        # 4. Guardar el progreso exitoso
+        docstore.persist(docstore_path)
         return True
-    except (TimeoutException, ConnectError) as e:
-        raise DocumentTimeoutError(f"Timeout al conectar con Qdrant: {e}") from e
-    except (ResponseHandlingException, UnexpectedResponse) as e:
-        raise DocumentAIError(f"Error en respuesta de Qdrant: {e}") from e
+
     except Exception as e:
-        raise DocumentAIError(f"Error al crear el índice: {e}") from e
+        # IMPORTANTE: Guardar el progreso incluso si falla para no re-procesar todo
+        docstore.persist(docstore_path)
+        raise DocumentAIError(f"Error en el pipeline de ingesta: {e}") from e
+
+#def upload_file_path(file_path:str, index: str) -> bool:
+#    """Sube un archivo al vector store después de procesarlo y crear un índice."""
+#    client = connect_vectorial_client()
+#    ensure_collection_exists(client, index)
+#    vector_store = get_vector_store(client, index)
+#
+#    try:
+#        node_parser = get_node_parser()
+#        storage_context = StorageContext.from_defaults(vector_store=vector_store)
+#        filename = os.path.basename(file_path)
+#
+#        delete_collection_points(client, index, "filename", filename)
+#        document = read_document(file_path)
+#
+#        for i, doc in enumerate(document):
+#            doc.id_ = f"{filename}_doc_{i}"
+#            doc.metadata["filename"] = filename
+#
+#        chunks = clean_content(document)
+#        VectorStoreIndex.from_documents(
+#            chunks,
+#            storage_context=storage_context,
+#            node_parser=node_parser,
+#            show_progress=True,
+#        )
+#        return True
+#    except (TimeoutException, ConnectError) as e:
+#        raise DocumentTimeoutError(f"Timeout al conectar con Qdrant: {e}") from e
+#    except (ResponseHandlingException, UnexpectedResponse) as e:
+#        raise DocumentAIError(f"Error en respuesta de Qdrant: {e}") from e
+#    except Exception as e:
+#        raise DocumentAIError(f"Error al crear el índice: {e}") from e
 
 def upload_file(file, index: str) -> bool:
     """Sube un archivo recibido a través de la API al vector store después de procesarlo."""

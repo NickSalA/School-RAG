@@ -79,7 +79,7 @@ class Settings(BaseSettings):
     PROJECT_NAME: str = "SCHOOL-RAG"
     LOG_LEVEL: str = "INFO"
     GLOBAL_PREFIX: str = "/api/v1"
-    CORS_ORIGINS: list[str] = ["http://localhost:8000", "http://localhost:3000"]
+    CORS_ORIGINS: list[str] = ["http://localhost:8000", "http://localhost:3000", "http://localhost:9002"]
     SECRET_KEY: str = Field(default_factory=lambda: get_secret("SECRET-KEY"))
 
     MODEL_API_KEY: str = Field(default_factory=lambda: get_secret("MODEL-API-KEY"))
