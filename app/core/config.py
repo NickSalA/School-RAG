@@ -87,8 +87,8 @@ class Settings(BaseSettings):
 
     GEMINI_EMBEDDING_MODEL_NAME: str = Field(default=...)
 
-    QDRANT_HOST: str = Field(default=...)
-    QDRANT_PORT: int = Field(default=6333)
+    QDRANR_API_KEY: str = Field(default_factory=lambda: get_secret("QDRANT-API-KEY"))
+    QDRANT_URL: str = Field(default=...)
 
     LLAMA_PARSE_API_KEY: str = Field(default_factory=lambda: get_secret("LLAMA-PARSE-API-KEY"))
 
