@@ -37,4 +37,4 @@ COPY . .
 EXPOSE 8000
 
 # Ejecutamos uvicorn directamente (ya está en el PATH gracias a la línea de ENV)
-CMD ["uvicorn", "app.app:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]

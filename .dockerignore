@@ -39,6 +39,11 @@ docs/
 test.py
 tests/
 
+# Local
+files/
+.files/
+
+
 # Docker
 Dockerfile
 .dockerignore

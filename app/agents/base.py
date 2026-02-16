@@ -28,7 +28,7 @@ class BaseAgent:
                     "checkpoint_ns": f"{self.checkpoint_ns}",
                 }
             }
-        return await execute(self.agent, consulta, config=config)
+        return await execute(self.agent, query=consulta, config=config)
 
     def generate_thread_id(self) -> str:
         """Generar un nuevo ID de hilo para resetear la memoria."""

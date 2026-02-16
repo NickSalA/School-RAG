@@ -27,7 +27,6 @@ def get_llm() -> ChatGoogleGenerativeAI:
             f"Error al inicializar el modelo Gemini: {e}"
         ) from e
 
-
 def configure_embedding() -> None:
     """Configura el modelo de embedding Google GenAI para LlamaIndex.
     
@@ -38,8 +37,8 @@ def configure_embedding() -> None:
         Settings.embed_model = GoogleGenAIEmbedding(
             model_name=settings.GEMINI_EMBEDDING_MODEL_NAME,
             api_key=settings.MODEL_API_KEY,
-            fast_mode=True,
-            embed_batch_size=1,
+            embed_batch_size=20,
+            embedding_config={"output_dimensionality": 768}
         )
     except Exception as e:
         raise GenerativeAIModelError(f"Error al configurar modelo de embeddings: {e}") from e

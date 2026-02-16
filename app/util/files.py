@@ -42,10 +42,20 @@ def ensure_collection_exists(client: QdrantClient, index: str):
         client.recreate_collection(
             collection_name=index,
             vectors_config=models.VectorParams(
-                size=3072,
+                size=768,
                 distance=models.Distance.COSINE
             )
         )
+    # Crear índice para filtrar por filename (idempotente)
+    try:
+        client.create_payload_index(
+            collection_name=index,
+            field_name="filename",
+            field_schema=models.PayloadSchemaType.KEYWORD
+        )
+    except Exception as e:
+        if "already exists" not in str(e):
+            raise
 
 def get_collection_points(client: QdrantClient, index: str) -> List[str]:
     """Obtiene puntos de una colección en Qdrant basados en una clave de metadatos."""

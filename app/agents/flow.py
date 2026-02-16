@@ -15,6 +15,7 @@ from app.agents.tools.bc_tool import bc_tool
 # Importa el checkpointer para la memoria
 from app.agents.checkpointer import get_checkpointer
 
+from app.core.config import settings
 
 def prompt_system() -> str:
     """Generar el prompt del sistema para el agente."""
@@ -104,7 +105,7 @@ class FlowAgent:
         self.llm = get_llm()
         self.agent_flow = BaseAgent(
             llm=self.llm,
-            tools = [bc_tool("edu")],
+            tools = [bc_tool(settings.INDEX_NAME)],
             memory= get_checkpointer(),
             context=prompt_system(),
             checkpoint_ns="pucp-demo",
