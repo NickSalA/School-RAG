@@ -1,6 +1,7 @@
 """Funciones utilitarias para crear y ejecutar agentes de LangGraph."""
 
 # Utilitario para crear y ejecutar agentes
+import re
 from langchain.agents import create_agent
 
 # Utilitario para el modelo de lenguaje
@@ -38,15 +39,13 @@ async def execute(agent, query: str = "", config=None, verbose: bool = True):
         if not response or "messages" not in response or not response["messages"]:
             raise AgentExecutionError("Respuesta inválida del agente.")
 
-        response = response["messages"][-1]
+        response = response["messages"][-1].content
 
-        if isinstance(response, AIMessage):
-            if response.content:
-                return str(response.content)
-            if response.tool_calls:
-                raise AgentExecutionError("El agente intentó usar una herramienta, pero no se esperaba.")
+        if isinstance(response, str):
+            return response
 
-        return str(response.content)
+        response = response[0].get("text", "")
+        return response
     except (ServiceUnavailable, Aborted) as e:
         raise AgentNotAvailableError(f'El agente no está disponible: {e}') from e
     except ResourceExhausted as e:
