@@ -6,7 +6,7 @@ from pypdf import PdfReader
 from app.services.documents import upload_file, get_uploaded_documents
 from app.core.config import settings
 
-from app.api.schema import DocumentJSON, ResponseJSON
+from app.schemas.documents_schema import DocumentJSON, ResponseJSON
 
 from app.exceptions.cloud import DocumentFormatError, DocumentSizeError, DocumentQualityError
 

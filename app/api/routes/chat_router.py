@@ -2,10 +2,9 @@
 
 from typing import Annotated
 from fastapi import APIRouter, Depends
-from app.api.schema import AgentMessageJson, ChatIn
+from app.schemas.chat_schema import AgentMessageJson, ChatIn
 from app.agents.flow import FlowAgent
 from app.api.dependencies import get_flow_agent
-from app.exceptions.cloud import AgentResponseError
 
 router = APIRouter()
 
