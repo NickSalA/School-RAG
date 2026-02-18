@@ -46,56 +46,6 @@ def get_node_parser():
     )
     return node_parser
 
-# def upload_file_path(file_path: str, index: str) -> bool:
-#     """Sube un archivo usando un Ingestion Pipeline con persistencia."""
-#     client = connect_vectorial_client()
-#     ensure_collection_exists(client, index)
-#     vector_store = get_vector_store(client, index)
-
-#     # 1. Configurar la persistencia del estado (Memoria del progreso)
-#     storage_dir = "./storage"
-#     os.makedirs(storage_dir, exist_ok=True)
-#     # Un docstore por índice para evitar mezclar documentos
-#     docstore_path = os.path.join(storage_dir, f"docstore_{index}.json")
-
-#     if os.path.exists(docstore_path):
-#         docstore = SimpleDocumentStore.from_persist_path(docstore_path)
-#     else:
-#         docstore = SimpleDocumentStore()
-
-#     try:
-#         filename = os.path.basename(file_path)
-#         document = read_document(file_path)
-
-#         # Asignar metadatos básicos
-#         for i, doc in enumerate(document):
-#             doc.id_ = f"{filename}_doc_{i}"
-#             doc.metadata["filename"] = filename
-
-#         # 2. Definir el Pipeline
-#         # Aquí sumamos: Parser -> Embeddings -> Qdrant
-#         pipeline = IngestionPipeline(
-#             transformations=[
-#                 get_node_parser(),
-#                 Settings.embed_model, # El que configuramos con batch_size=1
-#             ],
-#             vector_store=vector_store,
-#             docstore=docstore, # El pipeline revisará aquí qué nodos ya existen
-#         )
-
-#         # 3. Ejecutar la ingesta
-#         # Si falla al 90%, lo que ya se subió se queda marcado en el docstore
-#         pipeline.run(documents=document, show_progress=True)
-
-#         # 4. Guardar el progreso exitoso
-#         docstore.persist(docstore_path)
-#         return True
-
-#     except Exception as e:
-#         # IMPORTANTE: Guardar el progreso incluso si falla para no re-procesar todo
-#         docstore.persist(docstore_path)
-#         raise DocumentAIError(f"Error en el pipeline de ingesta: {e}") from e
-
 def upload_file_path(file_path:str, index: str) -> bool:
     """Sube un archivo al vector store después de procesarlo y crear un índice."""
     client = connect_vectorial_client()

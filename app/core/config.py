@@ -75,11 +75,12 @@ def get_secret(name: str) -> str:
     """
     return SecretManager.get_secret(name)
 
+
 class Settings(BaseSettings):
     PROJECT_NAME: str = "SCHOOL-RAG"
     LOG_LEVEL: str = "INFO"
     GLOBAL_PREFIX: str = "/api/v1"
-    CORS_ORIGINS: list[str] = ["http://localhost:8000", "http://localhost:3000", "http://localhost:9002"]
+    CORS_ORIGINS: list[str] = ["http://localhost:8000", "http://localhost:3000", "http://localhost:9002", "https://edu-ai-iota-lemon.vercel.app/"]
     SECRET_KEY: str = Field(default_factory=lambda: get_secret("SECRET-KEY"))
 
     MODEL_API_KEY: str = Field(default_factory=lambda: get_secret("MODEL-API-KEY"))
@@ -107,6 +108,7 @@ class Settings(BaseSettings):
         case_sensitive=True,
         extra="ignore"
     )
+
 
 try:
     settings = Settings()
