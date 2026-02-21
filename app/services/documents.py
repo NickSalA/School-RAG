@@ -25,11 +25,6 @@ from app.util.files import get_files, delete_collection_points, ensure_collectio
 # Excepciones personalizadas
 from app.exceptions.cloud import DocumentAIError, DocumentTimeoutError
 
-#Pipeline
-from llama_index.core.ingestion import IngestionPipeline
-from llama_index.core.storage.docstore import SimpleDocumentStore
-from llama_index.core import Settings
-
 def read_document(file_path: str):
     """Lee y procesa un documento usando LlamaParse."""
 
@@ -141,3 +136,20 @@ def get_uploaded_documents(index: str) -> list[str]:
         raise
     except Exception as e:
         raise DocumentAIError(f"Error al obtener los documentos subidos: {e}") from e
+
+def delete_uploaded_documents(filename: str, index: str) -> bool:
+    """Elimina los documentos subidos al vector store basados en el nombre del archivo."""
+    client = connect_vectorial_client()
+    try:
+        if not client.collection_exists(index):
+            raise DocumentAIError(f"La colección '{index}' no existe en el vector store.")
+        delete_collection_points(client, index, key="filename", value=filename)
+        return True
+    except (TimeoutException, ConnectError) as e:
+        raise DocumentTimeoutError(f"Timeout al conectar con Qdrant: {e}") from e
+    except (ResponseHandlingException, UnexpectedResponse) as e:
+        raise DocumentAIError(f"Error en respuesta de Qdrant: {e}") from e
+    except DocumentAIError:
+        raise
+    except Exception as e:
+        raise DocumentAIError(f"Error al eliminar los documentos subidos: {e}") from e

@@ -3,7 +3,7 @@
 from typing import Annotated
 from fastapi import APIRouter, UploadFile, File
 from pypdf import PdfReader
-from app.services.documents import upload_file, get_uploaded_documents
+from app.services.documents import upload_file, get_uploaded_documents, delete_uploaded_documents
 from app.core.config import settings
 
 from app.schemas.documents_schema import DocumentJSON, ResponseJSON
@@ -41,3 +41,15 @@ def get_documents():
     """Endpoint para obtener los documentos subidos."""
     documents = get_uploaded_documents(index=settings.INDEX_NAME)
     return DocumentJSON(message="Documentos obtenidos exitosamente.", documents=documents)
+
+@router.delete("/", response_model=ResponseJSON)
+def delete_documents(filename: str):
+    """Endpoint para eliminar un documento subido."""
+    if not filename or not filename.strip():
+        raise DocumentFormatError("El nombre del archivo no puede estar vacío.")
+    documents = get_uploaded_documents(index=settings.INDEX_NAME)
+    if filename not in documents:
+        raise DocumentFormatError(f"El archivo '{filename}' no existe en los documentos subidos.")
+
+    delete_uploaded_documents(filename, index=settings.INDEX_NAME)
+    return ResponseJSON(message=f"Documento '{filename}' eliminado exitosamente.")

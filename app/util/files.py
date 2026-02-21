@@ -53,7 +53,7 @@ def ensure_collection_exists(client: QdrantClient, index: str):
             field_name="filename",
             field_schema=models.PayloadSchemaType.KEYWORD
         )
-    except Exception as e:
+    except (ValueError, RuntimeError) as e:
         if "already exists" not in str(e):
             raise
 
