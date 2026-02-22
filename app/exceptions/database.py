@@ -23,7 +23,24 @@ class VectorStoreQueryError(VectorStoreError):
     """Error al ejecutar una consulta en el vector store."""
     status_code = 500
 
-
 class VectorStoreIndexError(VectorStoreError):
     """Error al crear o actualizar un índice en el vector store."""
     status_code = 500
+
+
+# Errores de Base de Datos (SQLAlchemy)
+class DatabaseError(AppError):
+    """Error general relacionado con la base de datos."""
+    status_code = 500
+
+class DatabaseConnectionError(DatabaseError):
+    """Error al conectar con la base de datos."""
+    status_code = 503
+
+class DatabaseQueryError(DatabaseError):
+    """Error al ejecutar una consulta en la base de datos."""
+    status_code = 500
+
+class DatabaseIntegrityError(DatabaseError):
+    """Error de integridad en la base de datos (ej. violación de clave única)."""
+    status_code = 409

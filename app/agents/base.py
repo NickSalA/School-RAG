@@ -4,14 +4,14 @@
 import uuid
 
 # Utilitario para el modelo de lenguaje
-from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain_core.runnables import Runnable
 
 # Utilitarios para crear y ejecutar agentes
 from app.util.agent import get_agent, execute
 
 class BaseAgent:
     def __init__(self,
-        llm: ChatGoogleGenerativeAI,
+        llm: Runnable,
         context: str,
         checkpoint_ns: str = "school-rag",
         tools: list | None = None,

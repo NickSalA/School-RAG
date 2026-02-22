@@ -1,12 +1,7 @@
 """Funciones utilitarias para crear y ejecutar agentes de LangGraph."""
 
 # Utilitario para crear y ejecutar agentes
-import re
 from langchain.agents import create_agent
-
-# Utilitario para el modelo de lenguaje
-from langchain_core.messages import AIMessage
-from langchain_google_genai import ChatGoogleGenerativeAI
 
 # Manejo de memoria del agente
 from langgraph.checkpoint.memory import InMemorySaver
@@ -15,16 +10,16 @@ from google.api_core.exceptions import ServiceUnavailable, ResourceExhausted, De
 from app.exceptions.cloud import AgentExecutionError, AgentNotAvailableError, AgentResponseError, GenerativeAIQuotaError, GenerativeAITimeoutError
 
 def get_agent(
-    llm: ChatGoogleGenerativeAI,
+    llm,
     context: str,
     tools: list | None = None,
-    memory=None
+    memory=None,
 ):
     """Crear un agente con las herramientas y contexto dados."""
     if tools is None:
         tools = []
     agent = create_agent(
-        model=llm, tools=tools, checkpointer=memory if memory else InMemorySaver(), system_prompt=context,
+        model=llm, tools=tools, checkpointer=memory if memory else InMemorySaver(), system_prompt=context
     )
     return agent
 

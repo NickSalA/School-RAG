@@ -84,14 +84,16 @@ class Settings(BaseSettings):
     SECRET_KEY: str = Field(default_factory=lambda: get_secret("SECRET-KEY"))
 
     MODEL_API_KEY: str = Field(default_factory=lambda: get_secret("MODEL-API-KEY"))
-    MODEL_TEMPERATURE: float = 0.7
+    MODEL_SECOND_API_KEY: str = Field(default_factory=lambda: get_secret("MODEL-SECOND-API-KEY"))
+    MODEL_TEMPERATURE: float = Field(default=0.7)
 
-    GEMINI_EMBEDDING_MODEL_NAME: str = Field(default=...)
+    GEMINI_EMBEDDING_MODEL_NAME: str = Field(default="gemini-embedding-001")
 
     QDRANR_API_KEY: str = Field(default_factory=lambda: get_secret("QDRANT-API-KEY"))
     QDRANT_URL: str = Field(default=...)
 
     LLAMA_PARSE_API_KEY: str = Field(default_factory=lambda: get_secret("LLAMA-PARSE-API-KEY"))
+    OPENAI_API: str = Field(default_factory=lambda: get_secret("OPENAI-API"))
 
     BETTER_STACK_TOKEN: str = Field(default_factory=lambda: get_secret("BETTER-STACK-TOKEN"))
     BETTER_STACK_HOST: str = Field(default=...)
@@ -101,6 +103,19 @@ class Settings(BaseSettings):
     ALLOWED_FILE_TYPES: list[str] = Field(default=["application/pdf", "text/plain"])
     MAX_FILE_SIZE: int = Field(default=5)
     MAX_NUM_PAGES: int = Field(default=10)
+
+    DATABASE_NAME: str = Field(default="postgres")
+    DATABASE_PASSWORD: str = Field(default_factory=lambda: get_secret("DATABASE-PASSWORD"))
+    DATABASE_USER: str = Field(default_factory=lambda: get_secret("DATABASE-USER"))
+    DATABASE_HOST: str = Field(default_factory=lambda: get_secret("DATABASE-HOST"))
+    DATABASE_PORT: int = Field(default=5432)
+
+    @property
+    def DATABASE_URL(self) -> str:  # pylint: disable=invalid-name
+        """Recupera la URL de la base de datos desde Key Vault o variable de entorno."""
+        if not self.DATABASE_HOST:
+            return "sqlite:///./test.db"
+        return f"postgresql+psycopg2://{self.DATABASE_USER}:{self.DATABASE_PASSWORD}@{self.DATABASE_HOST}:{self.DATABASE_PORT}/{self.DATABASE_NAME}?sslmode=require"
 
     model_config = SettingsConfigDict(
         env_file=".env",

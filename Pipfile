@@ -20,12 +20,17 @@ llama-index-readers-file = "*"
 llama-index-vector-stores-qdrant = "*"
 qdrant-client = "*"
 llama-parse = "*"
-llama-index-embeddings-google-genai = "*"
+llama-index-embeddings-openai = "*"
 loguru = "*"
 python-multipart = "*"
 logtail-python = "*"
 google-api-core = "*"
 griffe = "<1.0.0"
+sqlalchemy.exc = "*"
+sqlmodel = "*"
+psycopg2 = "*"
+
+
 [dev-packages]
 pytest = "*"
 

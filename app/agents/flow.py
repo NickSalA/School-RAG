@@ -7,7 +7,7 @@ Este módulo implementa el FlowAgent, un asistente especializado en ayudar a est
 from app.agents.base import BaseAgent
 
 # Importa el modelo de lenguaje
-from app.adapters.gemini import get_llm
+from app.adapters.gemini import get_llm, get_secondary_llm
 
 # Importa la herramienta para buscar en la base de conocimientos
 from app.agents.tools.bc_tool import bc_tool
@@ -102,7 +102,10 @@ def prompt_system() -> str:
 
 class FlowAgent:
     def __init__(self):
-        self.llm = get_llm()
+        primary_llm = get_llm()
+        secondary_llm = get_secondary_llm()
+        self.llm = primary_llm.with_fallbacks([secondary_llm])
+
         self.agent_flow = BaseAgent(
             llm=self.llm,
             tools = [bc_tool(settings.INDEX_NAME)],

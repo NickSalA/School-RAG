@@ -16,7 +16,7 @@ from httpx import TimeoutException, ConnectError
 # Adapters para servicios externos
 from app.adapters.qdrant import get_vector_store, connect_vectorial_client
 from app.adapters.llamaparse import get_analyzer
-from app.adapters.gemini import configure_embedding
+from app.adapters.openai import configure_embedding
 
 # Utilitarios para procesamiento de texto y manejo de archivos
 from app.util.text import clean_content

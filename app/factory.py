@@ -24,7 +24,7 @@ from app.core.middleware import LoguruMiddleware
 # Excepciones personalizadas
 from app.exceptions.base import AppError
 
-from app.adapters.gemini import configure_embedding
+from app.adapters.openai import configure_embedding
 
 # Routers
 from app.api.routes.chat_router import router as chat_router
