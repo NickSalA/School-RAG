@@ -8,7 +8,8 @@ from sqlmodel import Session, select
 from app.core.config import settings
 from app.core.database import get_session
 from app.models.user_model import User
-from app.core.security import SECRET_KEY, ALGORITHM, InvalidTokenError
+
+from app.exceptions.cloud import InvalidTokenError
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl=f"{settings.GLOBAL_PREFIX}/auth/login")
 
@@ -23,7 +24,7 @@ def get_current_user(
         headers={"WWW-Authenticate": "Bearer"},
     )
     try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
         username: str | None = payload.get("sub")
         if username is None:
             raise credentials_exception
@@ -31,8 +32,5 @@ def get_current_user(
         raise InvalidTokenError("Token inválido o expirado")
     
     # Buscar el usuario en la BD
-    user = session.exec(select(User).where(User.username == username)).first()
-    if user is None:
-        raise credentials_exception
-        
-    return user
+    User = session.exec(select(User).where(User.username == username)).first()
+    return User

@@ -81,7 +81,10 @@ class Settings(BaseSettings):
     LOG_LEVEL: str = "INFO"
     GLOBAL_PREFIX: str = "/api/v1"
     CORS_ORIGINS: list[str] = ["http://localhost:8000", "http://localhost:3000", "http://localhost:9002", "https://edu-ai-iota-lemon.vercel.app/"]
+
     SECRET_KEY: str = Field(default_factory=lambda: get_secret("SECRET-KEY"))
+    ALGORITHM: str = Field(default_factory=lambda: get_secret("ALGORITHM"))
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = Field(default=1440)
 
     MODEL_API_KEY: str = Field(default_factory=lambda: get_secret("MODEL-API-KEY"))
     MODEL_SECOND_API_KEY: str = Field(default_factory=lambda: get_secret("MODEL-SECOND-API-KEY"))
@@ -89,11 +92,11 @@ class Settings(BaseSettings):
 
     GEMINI_EMBEDDING_MODEL_NAME: str = Field(default="gemini-embedding-001")
 
-    QDRANR_API_KEY: str = Field(default_factory=lambda: get_secret("QDRANT-API-KEY"))
+    QDRANT_API_KEY: str = Field(default_factory=lambda: get_secret("QDRANT-API-KEY"))
     QDRANT_URL: str = Field(default=...)
 
     LLAMA_PARSE_API_KEY: str = Field(default_factory=lambda: get_secret("LLAMA-PARSE-API-KEY"))
-    OPENAI_API: str = Field(default_factory=lambda: get_secret("OPENAI-API"))
+    OPENAI_API: str = Field(default_factory=lambda: get_secret("OPENAI-API-KEY"))
 
     BETTER_STACK_TOKEN: str = Field(default_factory=lambda: get_secret("BETTER-STACK-TOKEN"))
     BETTER_STACK_HOST: str = Field(default=...)

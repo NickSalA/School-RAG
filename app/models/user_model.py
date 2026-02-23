@@ -1,14 +1,19 @@
 """Modelo de base de datos para usuarios."""
 
-from sqlmodel import SQLModel, Field
-from typing import Optional
-from uuid import UUID, uuid4
+from enum import Enum
 
+from sqlmodel import SQLModel, Field
+from sqlalchemy.dialects.postgresql import ENUM as PgEnum
+from sqlalchemy import Column, Integer, String
+class Role(str, Enum):
+    ADMIN = "admin"
+    SUPERADMIN = "superadmin"
 class User(SQLModel, table=True):
     """Modelo SQLAlchemy para los usuarios del sistema."""
-    __tablename__: str = "users" # type: ignore
+    __tablename__: str = "user"
 
-    id: UUID = Field(default_factory=uuid4, primary_key=True, index=True)
-    username: str = Field(index=True, unique=True, nullable=False)
-    password_hash: str = Field(nullable=False)
-    role: str = Field(default="admin", nullable=False)
+    id: int = Field(default=None, sa_column=Column("id", Integer, primary_key=True, autoincrement=True))
+    name: str = Field(sa_column=Column("name", String, nullable=False))
+    email: str = Field(sa_column=Column("email", String, nullable=False, unique=True))
+    password: str = Field(sa_column=Column("password", String, nullable=False))
+    role: Role = Field(sa_column=Column("role", PgEnum(Role, name="role"), nullable=False))

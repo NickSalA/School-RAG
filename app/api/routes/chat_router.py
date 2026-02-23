@@ -4,7 +4,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends
 from app.schemas.chat_schema import AgentMessageJson, ChatIn
 from app.agents.flow import FlowAgent
-from app.api.dependencies import get_flow_agent
+from app.api.dependencies.dep_chat import get_flow_agent
 
 router = APIRouter()
 
