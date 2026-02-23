@@ -6,6 +6,9 @@ from contextlib import asynccontextmanager
 # Logging
 from loguru import logger
 
+# SQLAlchemy
+from sqlalchemy import text
+
 # FastAPI y middlewares
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
@@ -26,6 +29,8 @@ from app.exceptions.base import AppError
 
 from app.adapters.openai import configure_embedding
 
+from app.core.database import engine
+
 # Routers
 from app.api.routes.chat_router import router as chat_router
 from app.api.routes.documents_router import router as documents_router
@@ -39,11 +44,14 @@ def create() -> FastAPI:
         """
         Context manager para el ciclo de vida de la aplicación.
         """
+        logger.info("Iniciando la aplicación Posgrado Backend...")
         setup()
         configure_embedding()
-        logger.info("Creando tablas en la base de datos...")
-        logger.info("Iniciando la aplicación Posgrado Backend...")
+        async with engine.begin() as conn:
+            await conn.execute(text("SELECT 1"))
+        logger.info("Configuración establecida exitosamente.")
         yield
+        await engine.dispose()
         logger.info("Cerrando la aplicación Posgrado Backend...")
 
     app = FastAPI(title=settings.PROJECT_NAME, version="1.0.0", lifespan=lifespan)

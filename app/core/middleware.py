@@ -32,21 +32,23 @@ class LoguruMiddleware(BaseHTTPMiddleware):
         ):
 
             start_time = time.time()
+            try:
+                response = await call_next(request)
+                process_time = time.time() - start_time
+                log_message = f"{request.method} {request.url.path} | Status: {response.status_code} ({process_time:.2f}s)"                
+                if response.status_code >= 500:
+                    logger.error(log_message)
+                else:
+                    logger.info(log_message)
+                    
+                return response
 
-            response = await call_next(request)
-            process_time = time.time() - start_time
-            response.headers["X-Request-ID"] = request_id
-
-            log_message = (
-                f"{request.method} {request.url.path} | Request: {response.status_code} "
-                f"(Tiempo: {process_time:.2f}s)"
-            )
-
-            if response.status_code >= 500:
-                logger.error(log_message)
-            elif response.status_code >= 400:
-                logger.warning(log_message)
-            else:
-                logger.info(log_message)
-
-            return response
+            except Exception as e:
+                process_time = time.time() - start_time
+                error_type = type(e).__name__
+                error_details = str(e).split('\n')[0]
+                logger.error(
+                    f"{request.method} {request.url.path} | ERROR: {error_type}: {error_details} "
+                    f"({process_time:.2f}s)"
+                )
+                raise e

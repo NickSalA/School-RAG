@@ -1,36 +1,43 @@
 """Dependencias de FastAPI, incluyendo autenticación."""
 
-import jwt
 from typing import Annotated
-from fastapi import Depends, HTTPException, status
+import jwt
+
+from fastapi import Depends
 from fastapi.security import OAuth2PasswordBearer
-from sqlmodel import Session, select
+
+from sqlmodel import select
+from sqlmodel.ext.asyncio.session import AsyncSession
+
 from app.core.config import settings
 from app.core.database import get_session
 from app.models.user_model import User
 
-from app.exceptions.cloud import InvalidTokenError
+from app.exceptions.auth import InvalidCredentialsError, UserNotFoundError, TokenValidationError
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl=f"{settings.GLOBAL_PREFIX}/auth/login")
 
-def get_current_user(
+async def get_current_user(
     token: Annotated[str, Depends(oauth2_scheme)],
-    session: Annotated[Session, Depends(get_session)]
+    session: Annotated[AsyncSession, Depends(get_session)]
 ) -> User:
     """Extrae el usuario actual a partir del token JWT."""
-    credentials_exception = HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Credenciales inválidas o expiradas",
-        headers={"WWW-Authenticate": "Bearer"},
-    )
+
     try:
         payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
-        username: str | None = payload.get("sub")
-        if username is None:
-            raise credentials_exception
-    except jwt.InvalidTokenError:
-        raise InvalidTokenError("Token inválido o expirado")
-    
-    # Buscar el usuario en la BD
-    User = session.exec(select(User).where(User.username == username)).first()
-    return User
+        user_id: str | None = payload.get("sub")
+        if user_id is None:
+            raise InvalidCredentialsError("Usuario no identificado en el token")
+
+    except jwt.InvalidTokenError as e:
+        raise InvalidCredentialsError(f"Token inválido o expirado: {e}") from e
+
+    except jwt.PyJWTError as e:
+        raise TokenValidationError(f"Error al validar el token: {e}") from e
+
+    query = select(User).where(User.id == int(user_id))
+    result = await session.exec(query)
+    user = result.first()
+    if not user:
+        raise UserNotFoundError("Usuario no encontrado en la base de datos")
+    return user
