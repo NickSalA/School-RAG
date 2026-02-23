@@ -44,3 +44,7 @@ class DatabaseQueryError(DatabaseError):
 class DatabaseIntegrityError(DatabaseError):
     """Error de integridad en la base de datos (ej. violación de clave única)."""
     status_code = 409
+
+class NotFoundException(DatabaseError):
+    """Error cuando un recurso no se encuentra en la base de datos."""
+    status_code = 404
