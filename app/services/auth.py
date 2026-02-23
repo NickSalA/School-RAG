@@ -22,7 +22,7 @@ class AuthService:
         if not verify_password(credentials.password, user.password):
             raise InvalidCredentialsError("Credenciales inválidas.")
 
-        access_token = create_access_token(data={"sub": user.id, "role": user.role.value if hasattr(user.role, 'value') else user.role})
+        access_token = create_access_token(data={"sub": str(user.id), "role": user.role.value if hasattr(user.role, 'value') else user.role})
 
         return LoginResponse(
             access_token=access_token,

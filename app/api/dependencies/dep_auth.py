@@ -15,7 +15,7 @@ from app.models.user_model import User
 
 from app.exceptions.auth import InvalidCredentialsError, UserNotFoundError, TokenValidationError
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl=f"{settings.GLOBAL_PREFIX}/auth/login")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl=f"{settings.GLOBAL_PREFIX.lstrip('/')}/auth/login")
 
 async def get_current_user(
     token: Annotated[str, Depends(oauth2_scheme)],

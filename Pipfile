@@ -32,6 +32,7 @@ asyncpg = "*"
 bcrypt = "*"
 sqlalchemy = {exc = "*"}
 pyjwt = "*"
+aiofiles = "*"
 
 [dev-packages]
 pytest = "*"
