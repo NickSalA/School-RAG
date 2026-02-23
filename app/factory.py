@@ -38,6 +38,7 @@ from app.api.routes.auth_router import router as auth_router
 from app.api.routes.user_router import router as user_router
 from app.api.routes.prompt_router import router as prompt_router
 from app.api.routes.conversation_router import router as conversation_router
+from app.api.routes.feedback_router import router as feedback_router
 
 def create() -> FastAPI:
     """Crea y configura la aplicación FastAPI."""
@@ -65,6 +66,7 @@ def create() -> FastAPI:
     app.include_router(user_router, prefix=f"{settings.GLOBAL_PREFIX}/users", tags=["Usuarios"])
     app.include_router(prompt_router, prefix=f"{settings.GLOBAL_PREFIX}/prompts", tags=["Prompts"])
     app.include_router(conversation_router, prefix=f"{settings.GLOBAL_PREFIX}/conversations", tags=["Conversaciones"])
+    app.include_router(feedback_router, prefix=f"{settings.GLOBAL_PREFIX}/feedbacks", tags=["Feedbacks"])
 
     # CORS (ajusta origins a tu front real)
     app.add_middleware(
