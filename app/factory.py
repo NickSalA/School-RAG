@@ -41,6 +41,7 @@ from app.api.routes.user_router import router as user_router
 from app.api.routes.prompt_router import router as prompt_router
 from app.api.routes.conversation_router import router as conversation_router
 from app.api.routes.feedback_router import router as feedback_router
+from app.api.routes.log_router import router as log_router
 
 def create() -> FastAPI:
     """Crea y configura la aplicación FastAPI."""
@@ -67,10 +68,11 @@ def create() -> FastAPI:
     app.include_router(chat_router, prefix=settings.GLOBAL_PREFIX, tags=["Chat"])
     app.include_router(documents_router, prefix=f"{settings.GLOBAL_PREFIX}/documents", tags=["Documentos"])
     app.include_router(auth_router, prefix=f"{settings.GLOBAL_PREFIX}/auth", tags=["Autenticación"])
-    app.include_router(user_router, prefix=f"{settings.GLOBAL_PREFIX}/users", tags=["Usuarios"])
+    app.include_router(user_router, prefix=f"{settings.GLOBAL_PREFIX}/users", tags=["Usuarios"], dependencies=[Depends(get_current_user)])
     app.include_router(prompt_router, prefix=f"{settings.GLOBAL_PREFIX}/prompts", tags=["Prompts"])
     app.include_router(conversation_router, prefix=f"{settings.GLOBAL_PREFIX}/conversations", tags=["Conversaciones"], dependencies=[Depends(get_current_user)])
     app.include_router(feedback_router, prefix=f"{settings.GLOBAL_PREFIX}/feedbacks", tags=["Feedbacks"], dependencies=[Depends(get_current_user)])
+    app.include_router(log_router, prefix=f"{settings.GLOBAL_PREFIX}/logs", tags=["Logs"], dependencies=[Depends(get_current_user)])
 
     # CORS (ajusta origins a tu front real)
     app.add_middleware(

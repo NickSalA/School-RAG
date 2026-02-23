@@ -75,7 +75,7 @@ class DocumentService:
                     "index": self.index
                 }
             )
-            
+
             if self.log_repo:
                 await self.log_repo.create(log)
             return True
