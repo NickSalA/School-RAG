@@ -90,7 +90,7 @@ class Settings(BaseSettings):
     MODEL_SECOND_API_KEY: str = Field(default_factory=lambda: get_secret("MODEL-SECOND-API-KEY"))
     MODEL_TEMPERATURE: float = Field(default=0.7)
 
-    GEMINI_EMBEDDING_MODEL_NAME: str = Field(default="gemini-embedding-001")
+    OPENAI_EMBEDDING_MODEL_NAME: str = Field(default="text-embedding-3-small")
 
     QDRANT_API_KEY: str = Field(default_factory=lambda: get_secret("QDRANT-API-KEY"))
     QDRANT_URL: str = Field(default=...)
@@ -101,7 +101,7 @@ class Settings(BaseSettings):
     BETTER_STACK_TOKEN: str = Field(default_factory=lambda: get_secret("BETTER-STACK-TOKEN"))
     BETTER_STACK_HOST: str = Field(default=...)
 
-    INDEX_NAME: str = Field(default="school_rag_index")
+    INDEX_NAME: str = Field(default="school_rag_idx")
 
     ALLOWED_FILE_TYPES: list[str] = Field(default=["application/pdf", "text/plain"])
     MAX_FILE_SIZE: int = Field(default=5)
@@ -110,7 +110,7 @@ class Settings(BaseSettings):
     DATABASE_NAME: str = Field(default="postgres")
     DATABASE_PASSWORD: str = Field(default_factory=lambda: get_secret("DATABASE-PASSWORD"))
     DATABASE_USER: str = Field(default_factory=lambda: get_secret("DATABASE-USER"))
-    DATABASE_HOST: str = Field(default_factory=lambda: get_secret("DATABASE-HOST"))
+    DATABASE_HOST: str = Field(default=...)
     DATABASE_PORT: int = Field(default=5432)
 
     @property

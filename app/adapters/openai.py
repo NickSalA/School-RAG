@@ -15,7 +15,7 @@ def configure_embedding() -> None:
     """
     try:
         Settings.embed_model = OpenAIEmbedding(
-            model_name="text-embedding-3-small",
+            model_name=settings.OPENAI_EMBEDDING_MODEL_NAME,
             api_key=settings.OPENAI_API,
             embed_batch_size=50,
             dimensions=768,
