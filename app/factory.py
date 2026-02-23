@@ -32,7 +32,7 @@ from app.adapters.openai import configure_embedding
 from app.core.database import engine
 
 from app.api.dependencies.dep_auth import get_current_user
-
+from app.api.dependencies.dep_chat import get_flow_agent
 # Routers
 from app.api.routes.chat_router import router as chat_router
 from app.api.routes.documents_router import router as documents_router
@@ -53,6 +53,8 @@ def create() -> FastAPI:
         logger.info("Iniciando la aplicación Posgrado Backend...")
         setup()
         configure_embedding()
+        agent = get_flow_agent()
+        await agent.initialize()
         async with engine.begin() as conn:
             await conn.execute(text("SELECT 1"))
         logger.info("Configuración establecida exitosamente.")

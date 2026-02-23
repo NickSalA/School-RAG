@@ -2,12 +2,12 @@
 
 from llama_index.core import VectorStoreIndex
 
-from app.adapters.qdrant import get_vector_store, connect_vectorial_client
+from app.adapters.qdrant import get_async_vector_store, connect_async_vectorial_client
 from app.util.retriever import LlamaIndexWindowRetriever
 from app.exceptions.database import VectorStoreQueryError
 
 
-def get_retriever(collection_name: str) -> LlamaIndexWindowRetriever:
+async def get_retriever(collection_name: str) -> LlamaIndexWindowRetriever:
     """Obtener un retriever de LlamaIndex configurado con el índice dado.
     
     Args:
@@ -22,8 +22,8 @@ def get_retriever(collection_name: str) -> LlamaIndexWindowRetriever:
         VectorStoreCollectionNotFoundError: Si la colección no existe.
     """
     try:
-        client = connect_vectorial_client()
-        vector_store = get_vector_store(client, collection_name)
+        client = await connect_async_vectorial_client()
+        vector_store = await get_async_vector_store(client, collection_name)
         index = VectorStoreIndex.from_vector_store(vector_store)
         return LlamaIndexWindowRetriever(index=index, top_k=3)
     except Exception as e:

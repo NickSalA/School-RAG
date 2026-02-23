@@ -13,6 +13,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Literal
 
 from pydantic import BaseModel, Field
+import asyncio
 
 from langchain_core.prompts import (
     BasePromptTemplate,
@@ -61,9 +62,10 @@ async def _aget_relevant_documents(
     response_format: Literal["content", "content_and_artifact"] = "content",
 ) -> str | tuple[str, list[Document]]:
     docs = await retriever.ainvoke(query, config={"callbacks": callbacks})
-    content = document_separator.join(
-        [await aformat_document(doc, document_prompt) for doc in docs]
+    formatted_docs = await asyncio.gather(
+    *[aformat_document(doc, document_prompt) for doc in docs]
     )
+    content = document_separator.join(formatted_docs)
 
     if response_format == "content_and_artifact":
         return (content, docs)

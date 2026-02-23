@@ -4,8 +4,6 @@
 import os
 import time
 import shutil
-import tempfile
-
 from llama_index.core import VectorStoreIndex, StorageContext
 from llama_index.core.node_parser import SentenceWindowNodeParser
 
@@ -20,7 +18,7 @@ from app.adapters.openai import configure_embedding
 
 # Utilitarios para procesamiento de texto y manejo de archivos
 from app.util.text import clean_content
-from app.util.files import get_files, delete_collection_points, ensure_collection_exists, get_collection_points
+from app.util.files import get_files, delete_collection_points, ensure_collection_exists
 
 # Excepciones personalizadas
 from app.exceptions.cloud import DocumentAIError, DocumentTimeoutError
@@ -74,18 +72,6 @@ def upload_file_path(file_path:str, index: str) -> bool:
     except Exception as e:
         raise DocumentAIError(f"Error al crear el índice: {e}") from e
 
-def upload_file(file, index: str) -> bool:
-    """Sube un archivo recibido a través de la API al vector store después de procesarlo."""
-    temp_dir = tempfile.mkdtemp()
-    try:
-        safe_filename = os.path.basename(file.filename)
-        temp_path = os.path.join(temp_dir, safe_filename)
-        with open(temp_path, "wb") as temp_file:
-            shutil.copyfileobj(file.file, temp_file)
-        return upload_file_path(temp_path, index)
-    finally:
-        shutil.rmtree(temp_dir, ignore_errors=True)
-
 def upload_files_from_folder(folder_path: str = "", index: str = ""):
     """Carga todos los archivos de una carpeta a la base de conocimiento."""
     error_folder = os.path.join(folder_path, "error_files")
@@ -120,36 +106,3 @@ def upload_files_from_folder(folder_path: str = "", index: str = ""):
                     destino = os.path.join(error_folder, f"{timestamp}_{filename}")
                     shutil.move(file_path, destino)
         time.sleep(5)
-
-def get_uploaded_documents(index: str) -> list[str]:
-    """Obtiene una lista de los documentos subidos a la colección."""
-    client = connect_vectorial_client()
-    try:
-        if not client.collection_exists(index):
-            raise DocumentAIError(f"La colección '{index}' no existe en el vector store.")
-        return get_collection_points(client, index)
-    except (TimeoutException, ConnectError) as e:
-        raise DocumentTimeoutError(f"Timeout al conectar con Qdrant: {e}") from e
-    except (ResponseHandlingException, UnexpectedResponse) as e:
-        raise DocumentAIError(f"Error en respuesta de Qdrant: {e}") from e
-    except DocumentAIError:
-        raise
-    except Exception as e:
-        raise DocumentAIError(f"Error al obtener los documentos subidos: {e}") from e
-
-def delete_uploaded_documents(filename: str, index: str) -> bool:
-    """Elimina los documentos subidos al vector store basados en el nombre del archivo."""
-    client = connect_vectorial_client()
-    try:
-        if not client.collection_exists(index):
-            raise DocumentAIError(f"La colección '{index}' no existe en el vector store.")
-        delete_collection_points(client, index, key="filename", value=filename)
-        return True
-    except (TimeoutException, ConnectError) as e:
-        raise DocumentTimeoutError(f"Timeout al conectar con Qdrant: {e}") from e
-    except (ResponseHandlingException, UnexpectedResponse) as e:
-        raise DocumentAIError(f"Error en respuesta de Qdrant: {e}") from e
-    except DocumentAIError:
-        raise
-    except Exception as e:
-        raise DocumentAIError(f"Error al eliminar los documentos subidos: {e}") from e

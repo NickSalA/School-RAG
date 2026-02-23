@@ -81,6 +81,10 @@ class AgentResponseError(GenerativeAIError):
     """Error al procesar la respuesta del agente."""
     status_code = 500
 
+class AgentNotInitializedError(GenerativeAIError):
+    """Error al intentar usar el agente antes de su inicialización."""
+    status_code = 503
+
 # Auth
 class AuthError(AppError):
     """Excepción base para errores de autenticación."""
