@@ -26,6 +26,10 @@ from app.exceptions.base import AppError
 
 from app.adapters.openai import configure_embedding
 
+# SQLModel y Engine para inicializar bases de datos
+from sqlmodel import SQLModel
+from app.core.database import engine
+
 # Routers
 from app.api.routes.chat_router import router as chat_router
 from app.api.routes.documents_router import router as documents_router
@@ -41,6 +45,8 @@ def create() -> FastAPI:
         """
         setup()
         configure_embedding()
+        logger.info("Creando tablas en la base de datos...")
+        SQLModel.metadata.create_all(engine)
         logger.info("Iniciando la aplicación Posgrado Backend...")
         yield
         logger.info("Cerrando la aplicación Posgrado Backend...")

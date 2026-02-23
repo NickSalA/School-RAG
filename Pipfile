@@ -26,13 +26,15 @@ python-multipart = "*"
 logtail-python = "*"
 google-api-core = "*"
 griffe = "<1.0.0"
-sqlalchemy.exc = "*"
 sqlmodel = "*"
 psycopg2 = "*"
-
+bcrypt = "*"
+sqlalchemy = {exc = "*"}
+pyjwt = "*"
 
 [dev-packages]
 pytest = "*"
+httpx = "*"
 
 [scripts]
 start = "uvicorn app.main:app --reload"

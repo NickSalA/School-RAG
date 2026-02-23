@@ -80,3 +80,12 @@ class AgentNotAvailableError(GenerativeAIError):
 class AgentResponseError(GenerativeAIError):
     """Error al procesar la respuesta del agente."""
     status_code = 500
+
+# Auth
+class AuthError(AppError):
+    """Excepción base para errores de autenticación."""
+    status_code = 401
+
+class InvalidTokenError(AuthError):
+    """El token de autenticación proporcionado es inválido."""
+    status_code = 401
