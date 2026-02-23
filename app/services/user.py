@@ -34,3 +34,10 @@ class UserService:
 
         updated_user = await self.user_repo.update(db_obj=user, obj_in=user_in)
         return UserRead.model_validate(updated_user)
+
+    async def delete(self, user_id: int) -> None:
+        """Elimina un usuario."""
+        user = await self.user_repo.get(user_id)
+        if not user:
+            raise UserNotFoundError(f"Usuario con ID {user_id} no encontrado")
+        await self.user_repo.delete(user_id)
