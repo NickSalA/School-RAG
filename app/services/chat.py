@@ -27,7 +27,14 @@ class ChatService:
         assert conversation_id is not None
         assert thread_id is not None
 
-        response = await self.agent.answer_message(message=message, system_prompt=system_prompt, thread_id=thread_id)
+        metadata = f"""
+        # Información de contexto
+        - ID de conversación: {conversation_id}
+        """
+
+        final_prompt = f"{metadata}\n\n{system_prompt}"
+
+        response = await self.agent.answer_message(message=message, system_prompt=final_prompt, thread_id=thread_id)
         formatted_messages = format_message(user=message, agent=response)
         await self.conversation_service.update_messages(conversation_id, formatted_messages)
 

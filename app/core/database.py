@@ -1,9 +1,11 @@
 """Conexión a la base de datos y gestión de sesiones."""
 
 import ssl
+from contextlib import asynccontextmanager
 
 # Logging
 from loguru import logger
+
 
 # SQLAlchemy y SQLModel
 from sqlmodel.ext.asyncio.session import AsyncSession
@@ -58,3 +60,5 @@ async def get_session():
         except Exception:
             await session.rollback()
             raise
+
+get_session_context = asynccontextmanager(get_session)

@@ -13,7 +13,7 @@ from app.adapters.gemini import get_llm, get_secondary_llm
 
 # Importa la herramienta para buscar en la base de conocimientos
 from app.agents.tools.bc_tool import bc_tool
-
+from app.agents.tools.feedback_tool import get_feedback_tool
 # Importa el checkpointer para la memoria
 from app.agents.checkpointer import get_checkpointer
 
@@ -108,7 +108,7 @@ class FlowAgent:
 
         self.agent_flow = BaseAgent(
             llm=self.llm,
-            tools = [bc_tool(settings.INDEX_NAME)],
+            tools = [bc_tool(settings.INDEX_NAME), get_feedback_tool],
             memory= get_checkpointer(),
             checkpoint_ns="pucp-demo",
         )
