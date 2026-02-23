@@ -35,6 +35,7 @@ from app.core.database import engine
 from app.api.routes.chat_router import router as chat_router
 from app.api.routes.documents_router import router as documents_router
 from app.api.routes.auth_router import router as auth_router
+from app.api.routes.user_router import router as user_router
 
 def create() -> FastAPI:
     """Crea y configura la aplicación FastAPI."""
@@ -59,7 +60,8 @@ def create() -> FastAPI:
     app.include_router(chat_router, prefix=settings.GLOBAL_PREFIX, tags=["Chat"])
     app.include_router(documents_router, prefix=f"{settings.GLOBAL_PREFIX}/documents", tags=["Documentos"])
     app.include_router(auth_router, prefix=f"{settings.GLOBAL_PREFIX}/auth", tags=["Autenticación"])
-
+    app.include_router(user_router, prefix=f"{settings.GLOBAL_PREFIX}/users", tags=["Usuarios"])
+    
     # CORS (ajusta origins a tu front real)
     app.add_middleware(
         CORSMiddleware,

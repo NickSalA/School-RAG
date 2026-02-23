@@ -8,6 +8,7 @@ from app.agents.flow import FlowAgent
 from app.api.dependencies.dep_chat import get_flow_agent
 from app.core.database import get_session
 from app.services.chat import ChatService
+
 router = APIRouter()
 
 FlowAgentDep = Annotated[FlowAgent, Depends(get_flow_agent)]

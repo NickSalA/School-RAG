@@ -6,8 +6,8 @@ from sqlmodel import SQLModel, Field
 from sqlalchemy.dialects.postgresql import ENUM as PgEnum
 from sqlalchemy import Column, Integer, String
 class Role(str, Enum):
-    ADMIN = "admin"
-    SUPERADMIN = "superadmin"
+    ADMIN = "ADMIN"
+    SUPERADMIN = "SUPERADMIN"
 class User(SQLModel, table=True):
     """Modelo SQLAlchemy para los usuarios del sistema."""
     __tablename__: str = "user"
@@ -17,4 +17,4 @@ class User(SQLModel, table=True):
     name: str = Field(sa_column=Column("name", String, nullable=False))
     email: str = Field(sa_column=Column("email", String, nullable=False, unique=True))
     password: str = Field(sa_column=Column("password", String, nullable=False))
-    role: Role = Field(sa_column=Column("role", PgEnum(Role, name="role"), nullable=False))
+    role: Role = Field(sa_column=Column("role", PgEnum(Role, name="role", schema="school_rag"), nullable=False))
