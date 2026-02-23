@@ -3,6 +3,8 @@
 Este módulo implementa el FlowAgent, un asistente especializado en ayudar a estudiantes a encontrar soluciones normativas para evitar la deserción universitaria.
 """
 
+from typing import Any
+
 # Importa el wrapper base del agente
 from app.agents.base import BaseAgent
 
@@ -17,7 +19,7 @@ from app.agents.checkpointer import get_checkpointer
 
 from app.core.config import settings
 
-def prompt_system() -> str:
+def prompt_system() -> list[dict[str, Any]]:
     """Generar el prompt del sistema para el agente."""
 
     identity_objectives = (
@@ -88,15 +90,13 @@ def prompt_system() -> str:
         """
     )
 
-    messages = (
-        identity_objectives,
-        critical_rules,
-        workflow,
-        response_format,
-        communication_rules,
-    )
-
-    prompt = "\n".join(messages)
+    prompt = [
+        {"section": "Identidad y Objetivos", "content": identity_objectives},
+        {"section": "Reglas Críticas", "content": critical_rules},
+        {"section": "Flujo de Trabajo", "content": workflow},
+        {"section": "Formato de Respuesta", "content": response_format},
+        {"section": "Reglas de Comunicación", "content": communication_rules},
+    ]
 
     return prompt
 

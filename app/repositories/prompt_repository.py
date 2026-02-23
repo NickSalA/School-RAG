@@ -15,3 +15,7 @@ class PromptRepository(BaseRepository[Prompt, PromptCreate, PromptUpdate]):
         query = select(self.model).where(self.model.is_active)
         result = await self.session.exec(query)
         return result.one_or_none()
+
+    async def deactivate_prompt(self, prompt: Prompt) -> Prompt:
+        """Desactiva un prompt específico."""
+        return await self.update(db_obj=prompt, obj_in={"is_active": False})

@@ -20,7 +20,9 @@ class ChatService:
         if db_prompt is None:
             system_prompt = prompt_system()
         else:
-            system_prompt = format_content(db_prompt.system_message)
+            system_prompt = db_prompt.system_message
+
+        system_prompt = format_content(system_prompt)
 
         if not conversation_id or not thread_id:
             conversation_obj = ConversationCreate(content=[], prompt_id=prompt_id)
