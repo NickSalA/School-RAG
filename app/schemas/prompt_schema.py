@@ -9,6 +9,7 @@ class PromptStructure(BaseModel):
 class PromptBase(BaseModel):
     version_name: str = Field(..., description="Nombre de la versión del prompt.")
     system_message: list[PromptStructure] = Field(..., description="Estructura del mensaje del sistema.")
+    user_id: int | None = Field(default=None, description="ID del usuario que creó o modificó el prompt.")
     is_active: bool = Field(default=True, description="Indica si esta versión del prompt está activa.")
 
 class PromptCreate(PromptBase):

@@ -16,7 +16,7 @@ async def get(conversation_id: int, session: AsyncSession = Depends(get_session)
     return await service.get(conversation_id)
 
 @router.get("/", response_model=list[ConversationList])
-async def list_conversations(session: AsyncSession = Depends(get_session)):
+async def get_all(session: AsyncSession = Depends(get_session)):
     """Endpoint para listar todas las conversaciones."""
     service = ConversationService(session)
     return await service.list_conversations()
