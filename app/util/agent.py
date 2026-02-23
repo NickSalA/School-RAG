@@ -11,7 +11,6 @@ from app.exceptions.cloud import AgentExecutionError, AgentNotAvailableError, Ag
 
 def get_agent(
     llm,
-    context: str,
     tools: list | None = None,
     memory=None,
 ):
@@ -19,13 +18,17 @@ def get_agent(
     if tools is None:
         tools = []
     agent = create_agent(
-        model=llm, tools=tools, checkpointer=memory if memory else InMemorySaver(), system_prompt=context
+        model=llm, tools=tools, checkpointer=memory if memory else InMemorySaver()
     )
     return agent
 
-async def execute(agent, query: str = "", config=None, verbose: bool = True):
+async def execute(agent, query: str, system_prompt: str, config=None, verbose: bool = True):
     """Ejecutar el agente con la consulta dada y configuración opcional."""
-    payload = {"messages": [{"role": "user", "content": query}]}
+    messages = []
+    if system_prompt:
+        messages.append({"role": "system", "content": system_prompt})
+    messages.append({"role": "user", "content": query})
+    payload = {"messages": messages}
 
     try:
         response = await agent.ainvoke(payload, config=config)

@@ -8,9 +8,10 @@ from sqlalchemy import Column, Integer, DateTime, Boolean, String
 class Feedback(SQLModel, table=True):
     """Modelo SQLAlchemy para la retroalimentación."""
     __tablename__: str = "chat_feedback"
+    __table_args__ = {"schema": "school_rag"}
 
     id: int = Field(default=None, sa_column=Column("id", Integer, primary_key=True, autoincrement=True))
-    conversation_id: int = Field(sa_column=Column("conversation_id", Integer, ForeignKey("chat_conversation.id"), unique=True, nullable=False))
+    conversation_id: int = Field(sa_column=Column("conversation_id", Integer, ForeignKey("school_rag.chat_conversation.id"), unique=True, nullable=False))
     task_resolved: bool = Field(sa_column=Column("task_resolved", Boolean, nullable=False))
     rating: int = Field(sa_column=Column("rating", Integer))
     comments: str = Field(sa_column=Column("comments", String))

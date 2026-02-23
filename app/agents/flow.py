@@ -110,13 +110,12 @@ class FlowAgent:
             llm=self.llm,
             tools = [bc_tool(settings.INDEX_NAME)],
             memory= get_checkpointer(),
-            context=prompt_system(),
             checkpoint_ns="pucp-demo",
         )
 
-    async def answer_message(self, message: str = "", thread_id: str = ""):
+    async def answer_message(self, message: str, system_prompt: str, thread_id: str = "") -> str:
         """Respuesta del agente"""
-        return await self.agent_flow.answer(message, thread_id)
+        return await self.agent_flow.answer(message, system_prompt, thread_id)
 
     def generate_thread_id(self) -> str:
         """Generar un nuevo ID de hilo para resetear la memoria"""

@@ -11,6 +11,7 @@ class Role(str, Enum):
 class User(SQLModel, table=True):
     """Modelo SQLAlchemy para los usuarios del sistema."""
     __tablename__: str = "user"
+    __table_args__ = {"schema": "school_rag"}
 
     id: int = Field(default=None, sa_column=Column("id", Integer, primary_key=True, autoincrement=True))
     name: str = Field(sa_column=Column("name", String, nullable=False))

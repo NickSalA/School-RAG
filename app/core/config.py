@@ -118,7 +118,7 @@ class Settings(BaseSettings):
         """Recupera la URL de la base de datos desde Key Vault o variable de entorno."""
         if not self.DATABASE_HOST:
             return "sqlite:///./test.db"
-        return f"postgresql+psycopg2://{self.DATABASE_USER}:{self.DATABASE_PASSWORD}@{self.DATABASE_HOST}:{self.DATABASE_PORT}/{self.DATABASE_NAME}?sslmode=require"
+        return f"postgresql+asyncpg://{self.DATABASE_USER}:{self.DATABASE_PASSWORD}@{self.DATABASE_HOST}:{self.DATABASE_PORT}/{self.DATABASE_NAME}"
 
     model_config = SettingsConfigDict(
         env_file=".env",

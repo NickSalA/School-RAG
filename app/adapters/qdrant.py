@@ -21,7 +21,7 @@ def connect_vectorial_client() -> QdrantClient:
     """
     try:
         client = QdrantClient(
-            api_key=settings.QDRANR_API_KEY,
+            api_key=settings.QDRANT_API_KEY,
             url=settings.QDRANT_URL
         )
         # Verificar conexión

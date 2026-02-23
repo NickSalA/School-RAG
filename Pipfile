@@ -27,7 +27,7 @@ logtail-python = "*"
 google-api-core = "*"
 griffe = "<1.0.0"
 sqlmodel = "*"
-psycopg2 = "*"
+asyncpg = "*"
 bcrypt = "*"
 sqlalchemy = {exc = "*"}
 pyjwt = "*"
