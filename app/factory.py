@@ -10,7 +10,7 @@ from loguru import logger
 from sqlalchemy import text
 
 # FastAPI y middlewares
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, Depends
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.sessions import SessionMiddleware
@@ -30,6 +30,8 @@ from app.exceptions.base import AppError
 from app.adapters.openai import configure_embedding
 
 from app.core.database import engine
+
+from app.api.dependencies.dep_auth import get_current_user
 
 # Routers
 from app.api.routes.chat_router import router as chat_router
@@ -65,8 +67,8 @@ def create() -> FastAPI:
     app.include_router(auth_router, prefix=f"{settings.GLOBAL_PREFIX}/auth", tags=["Autenticación"])
     app.include_router(user_router, prefix=f"{settings.GLOBAL_PREFIX}/users", tags=["Usuarios"])
     app.include_router(prompt_router, prefix=f"{settings.GLOBAL_PREFIX}/prompts", tags=["Prompts"])
-    app.include_router(conversation_router, prefix=f"{settings.GLOBAL_PREFIX}/conversations", tags=["Conversaciones"])
-    app.include_router(feedback_router, prefix=f"{settings.GLOBAL_PREFIX}/feedbacks", tags=["Feedbacks"])
+    app.include_router(conversation_router, prefix=f"{settings.GLOBAL_PREFIX}/conversations", tags=["Conversaciones"], dependencies=[Depends(get_current_user)])
+    app.include_router(feedback_router, prefix=f"{settings.GLOBAL_PREFIX}/feedbacks", tags=["Feedbacks"], dependencies=[Depends(get_current_user)])
 
     # CORS (ajusta origins a tu front real)
     app.add_middleware(
