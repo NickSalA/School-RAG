@@ -18,3 +18,10 @@ class ConversationRead(ConversationBase):
     created_at: datetime = Field(..., description="Fecha y hora de creación de la conversación.")
 
     model_config = ConfigDict(from_attributes=True)
+
+class ConversationList(BaseModel):
+    id: int = Field(..., description="ID único de la conversación.")
+    prompt_id: int | None = Field(default=None, description="ID del prompt asociado a esta conversación.")
+    created_at: datetime = Field(..., description="Fecha y hora de creación de la conversación.")
+
+    model_config = ConfigDict(from_attributes=True)

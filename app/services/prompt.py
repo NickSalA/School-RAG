@@ -1,5 +1,7 @@
 """Servicio para la gestión de prompts, incluyendo la creación, actualización y recuperación del prompt activo."""
 
+from typing import Any
+
 from sqlmodel.ext.asyncio.session import AsyncSession
 from app.agents.flow import prompt_system
 from app.repositories.prompt_repository import PromptRepository
@@ -11,12 +13,12 @@ class PromptService:
     def __init__(self, session: AsyncSession):
         self.prompt_repo = PromptRepository(session)
 
-    async def get_active_prompt(self):
+    async def get_active_prompt(self) -> tuple[list[dict[str, Any]], int | None]:
         """Obtiene la versión activa del prompt."""
         db_prompt = await self.prompt_repo.get_active_prompt()
         if db_prompt is None:
-            return prompt_system()
-        return db_prompt.system_message
+            return prompt_system(), None
+        return db_prompt.system_message, db_prompt.id
 
     async def create(self, prompt_in: PromptCreate) -> PromptRead:
         """Crea un nuevo prompt."""
