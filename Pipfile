@@ -33,6 +33,7 @@ bcrypt = "*"
 sqlalchemy = {exc = "*"}
 pyjwt = "*"
 aiofiles = "*"
+langchain-groq = "*"
 
 [dev-packages]
 pytest = "*"

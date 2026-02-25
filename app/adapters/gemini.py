@@ -24,23 +24,3 @@ def get_llm() -> ChatGoogleGenerativeAI:
         raise GenerativeAIModelError(
             f"Error al inicializar el modelo Gemini: {e}"
         ) from e
-
-def get_secondary_llm() -> ChatGoogleGenerativeAI:
-    """Obtener el LLM de Google Generative AI.
-    
-    Returns:
-        ChatGoogleGenerativeAI: Instancia del modelo de lenguaje.
-    
-    Raises:
-        GenerativeAIModelError: Si hay error al inicializar el modelo.
-    """
-    try:
-        return ChatGoogleGenerativeAI(
-            model="gemini-2.5-flash",
-            api_key=settings.MODEL_SECOND_API_KEY,
-            temperature=settings.MODEL_TEMPERATURE,
-        )
-    except Exception as e:
-        raise GenerativeAIModelError(
-            f"Error al inicializar el modelo Gemini: {e}"
-        ) from e

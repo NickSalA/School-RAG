@@ -9,7 +9,8 @@ from typing import Any
 from app.agents.base import BaseAgent
 
 # Importa el modelo de lenguaje
-from app.adapters.gemini import get_llm, get_secondary_llm
+from app.adapters.gemini import get_llm
+from app.adapters.groq import get_secondary_llm
 
 # Importa la herramienta para buscar en la base de conocimientos
 from app.agents.tools.bc_tool import bc_tool
