@@ -3,7 +3,7 @@
 from sqlmodel.ext.asyncio.session import AsyncSession
 from app.agents.flow import FlowAgent
 from app.schemas.conversation_schema import ConversationCreate
-from app.util.format import format_content, format_message
+from app.util.format import format_prompt, format_message
 
 from app.services.conversation import ConversationService
 from app.services.prompt import PromptService
@@ -15,11 +15,11 @@ class ChatService:
         self.prompt_service = PromptService(session)
     async def chat(self, message: str, thread_id: str | None = None, conversation_id: int | None = None) -> tuple[str, int, str]:
         """Procesa un mensaje de chat, generando una respuesta del agente y actualizando la conversación."""
-        prompt, prompt_id = await self.prompt_service.get_active_prompt()
-        system_prompt = format_content(prompt)
+        prompt = await self.prompt_service.get_active_prompt()
+        system_prompt = format_prompt(prompt.system_message)
 
         if not conversation_id or not thread_id:
-            conversation_obj = ConversationCreate(content=[], prompt_id=prompt_id)
+            conversation_obj = ConversationCreate(content=[], prompt_id=prompt.id)
             new_conversation = await self.conversation_service.create(conversation_obj)
             conversation_id = new_conversation.id
             thread_id = self.agent.generate_thread_id()

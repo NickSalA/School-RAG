@@ -1,8 +1,8 @@
 """Utilidades para formatear contenido y mensajes de conversación."""
 
-from typing import Any
+from app.schemas.prompt_schema import PromptStructure
 
-def format_content(obj: list[dict[str, Any]]) -> str:
+def format_prompt(obj: list[PromptStructure]) -> str:
     """Formatea una lista de diccionarios como texto legible."""
     if not isinstance(obj, list):
         return str(obj)
