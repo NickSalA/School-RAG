@@ -7,7 +7,7 @@ import uuid
 from langchain_core.runnables import Runnable
 
 # Utilitarios para crear y ejecutar agentes
-from app.util.agent import get_agent, execute
+from app.agents.executor import get_agent, execute
 
 class BaseAgent:
     def __init__(self,

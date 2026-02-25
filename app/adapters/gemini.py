@@ -19,7 +19,6 @@ def get_llm() -> ChatGoogleGenerativeAI:
             model="gemini-2.5-flash",
             api_key=settings.MODEL_API_KEY,
             temperature=settings.MODEL_TEMPERATURE,
-            client_options={"num_retries": 0, "retries": 0},
             max_retries=0
         )
     except Exception as e:

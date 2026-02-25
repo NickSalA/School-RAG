@@ -10,12 +10,10 @@ langchain-google-genai = "*"
 langgraph = "*"
 langchain = "*"
 langchain-core = "*"
-langchain-community = "*"
 fastapi = "*"
 uvicorn = "*"
 azure-identity = "*"
 azure-keyvault-secrets = "*"
-itsdangerous= "*"
 llama-index-core = "*"
 llama-index-readers-file = "*"
 llama-index-vector-stores-qdrant = "*"
@@ -26,22 +24,22 @@ loguru = "*"
 python-multipart = "*"
 logtail-python = "*"
 google-api-core = "*"
-griffe = "<1.0.0"
 sqlmodel = "*"
 asyncpg = "*"
 bcrypt = "*"
-sqlalchemy = {exc = "*"}
 pyjwt = "*"
 aiofiles = "*"
 langchain-groq = "*"
+sqlalchemy = {exc = "*"}
 
 [dev-packages]
 pytest = "*"
 httpx = "*"
+deptry = "*"
 
 [scripts]
 start = "uvicorn app.main:app --reload"
-upload = "python3 -m app.upload"
+upload = "python3 -m scripts.upload"
 
 [requires]
 python_version = "3.12"

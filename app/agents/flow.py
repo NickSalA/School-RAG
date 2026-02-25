@@ -13,7 +13,7 @@ from app.adapters.gemini import get_llm
 from app.adapters.groq import get_secondary_llm
 
 # Importa la herramienta para buscar en la base de conocimientos
-from app.agents.tools.bc_tool import bc_tool
+from app.agents.tools.retriever_tool import bc_tool
 from app.agents.tools.feedback_tool import get_feedback_tool
 # Importa el checkpointer para la memoria
 from app.agents.checkpointer import get_checkpointer
@@ -105,9 +105,7 @@ def prompt_system() -> list[dict[str, Any]]:
 
 class FlowAgent:
     def __init__(self):
-        primary_llm = get_llm()
-        secondary_llm = get_secondary_llm()
-        self.llm = primary_llm.with_fallbacks([secondary_llm])
+        self.llm = None
         self.agent_flow = None
 
     async def initialize(self):
@@ -115,7 +113,12 @@ class FlowAgent:
         if self.agent_flow is not None:
             return
 
+        primary_llm = get_llm()
+        secondary_llm = get_secondary_llm()
+        self.llm = primary_llm.with_fallbacks([secondary_llm])
+
         bc_tool_instance = await bc_tool(settings.INDEX_NAME)
+
         self.agent_flow = BaseAgent(
             llm=self.llm,
             tools = [bc_tool_instance, get_feedback_tool],

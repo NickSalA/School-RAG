@@ -13,7 +13,6 @@ from sqlalchemy import text
 from fastapi import FastAPI, Request, Depends
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
-from starlette.middleware.sessions import SessionMiddleware
 
 # Configuración del sistema
 from app.core.config import settings
@@ -81,15 +80,6 @@ def create() -> FastAPI:
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
-    )
-
-    # Cookie de sesión
-    app.add_middleware(
-        SessionMiddleware,
-        secret_key=settings.SECRET_KEY,
-        same_site="lax",
-        https_only=settings.PROD,   # pon True en producción HTTPS
-        session_cookie="support_session",
     )
 
     # Middleware de logging con Loguru
