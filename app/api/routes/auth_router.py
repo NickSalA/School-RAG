@@ -1,13 +1,20 @@
 """Router para autenticación y gestión de sesiones."""
 
+# FastAPI
 from fastapi import APIRouter, Depends
 from fastapi.security import OAuth2PasswordRequestForm
 
+# Async Session
 from sqlmodel.ext.asyncio.session import AsyncSession
 
+# Schemas
 from app.schemas.auth_schema import LoginRequest, LoginResponse
+
+# Database
 from app.core.database import get_session
-from app.services.auth import AuthService
+
+# Services
+from app.services.auth_service import AuthService
 
 router = APIRouter()
 

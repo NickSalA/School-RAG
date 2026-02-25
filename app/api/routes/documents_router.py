@@ -10,7 +10,7 @@ from app.core.database import get_session
 from app.core.config import settings
 
 from app.schemas.documents_schema import DocumentJSON, ResponseJSON
-from app.services.document import DocumentService
+from app.services.document_service import DocumentService
 from app.adapters.qdrant import connect_async_vectorial_client
 
 from app.api.dependencies.dep_auth import get_current_user

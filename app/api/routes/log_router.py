@@ -4,7 +4,7 @@ from datetime import datetime
 from fastapi import APIRouter, Depends
 from sqlmodel.ext.asyncio.session import AsyncSession
 from app.schemas.log_schema import LogRead
-from app.services.log import LogService
+from app.services.log_service import LogService
 from app.core.database import get_session
 from app.models.log_model import ResourceType
 router = APIRouter()

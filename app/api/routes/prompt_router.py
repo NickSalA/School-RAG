@@ -3,7 +3,7 @@
 from fastapi import APIRouter, Depends
 from sqlmodel.ext.asyncio.session import AsyncSession
 from app.schemas.prompt_schema import PromptCreate, PromptRead, PromptStructure, PromptUpdate
-from app.services.prompt import PromptService
+from app.services.prompt_service import PromptService
 from app.core.database import get_session
 from app.api.dependencies.dep_auth import get_current_user
 

@@ -47,3 +47,12 @@ files/
 # Docker
 Dockerfile
 .dockerignore
+
+# Scripts
+scripts/
+
+# Logs
+logs/
+
+# Misc
+pyproject.toml

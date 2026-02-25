@@ -3,7 +3,7 @@
 from fastapi import APIRouter, Depends
 from sqlmodel.ext.asyncio.session import AsyncSession
 from app.schemas.feedback_schema import FeedbackRead
-from app.services.feedback import FeedbackService
+from app.services.feedback_service import FeedbackService
 from app.core.database import get_session
 
 router = APIRouter()

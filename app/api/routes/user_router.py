@@ -5,7 +5,7 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 from app.schemas.user_schema import UserRead, UserCreate, UserUpdate
 from app.core.database import get_session
 
-from app.services.user import UserService
+from app.services.user_service import UserService
 
 router = APIRouter()
 

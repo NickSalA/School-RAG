@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from app.schemas.conversation_schema import ConversationRead, ConversationList
-from app.services.conversation import ConversationService
+from app.services.conversation_service import ConversationService
 from app.core.database import get_session
 
 router = APIRouter()

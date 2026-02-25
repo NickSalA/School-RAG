@@ -1,13 +1,25 @@
 """Router para el agente de flujo."""
 
 from typing import Annotated
+
 from fastapi import APIRouter, Depends
+
 from sqlmodel.ext.asyncio.session import AsyncSession
+
+# Schemas
 from app.schemas.chat_schema import AgentMessageJson, ChatIn
-from app.agents.flow import FlowAgent
-from app.api.dependencies.dep_chat import get_flow_agent
+
+# Database
 from app.core.database import get_session
-from app.services.chat import ChatService
+
+# Services
+from app.services.chat_service import ChatService
+
+# Flow Agent to control the flow of the conversation
+from app.agents.flow import FlowAgent
+
+# Dependency to get the flow agent
+from app.api.dependencies.dep_chat import get_flow_agent
 
 router = APIRouter()
 
