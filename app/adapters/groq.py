@@ -1,5 +1,7 @@
 """Adaptador para integrar el modelo de lenguaje de Groq en la aplicación."""
 
+from pydantic import SecretStr
+
 from langchain_groq import ChatGroq
 
 from app.core.config import settings
@@ -18,7 +20,7 @@ def get_secondary_llm() -> ChatGroq:
     try:
         return ChatGroq(
             model="llama-3.3-70b-versatile",
-            api_key=settings.MODEL_SECOND_API_KEY,
+            api_key=SecretStr(settings.MODEL_SECOND_API_KEY),
             temperature=settings.MODEL_TEMPERATURE,
         )
     except Exception as e:
