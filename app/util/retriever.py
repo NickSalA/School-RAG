@@ -14,7 +14,7 @@ from llama_index.core.schema import NodeWithScore
 
 class LlamaIndexWindowRetriever(BaseRetriever):
     index: Any
-    top_k: int = 3
+    top_k: int = 5
 
     def _get_relevant_documents(
         self, query: str, *, run_manager: Optional[CallbackManagerForRetrieverRun] = None
