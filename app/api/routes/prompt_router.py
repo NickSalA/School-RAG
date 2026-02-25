@@ -19,8 +19,7 @@ async def create(prompt_in: PromptCreate, session: AsyncSession = Depends(get_se
 async def get_active(session: AsyncSession = Depends(get_session)):
     """Endpoint para obtener el prompt activo."""
     service = PromptService(session)
-    prompt, _ = await service.get_active_prompt()
-    return prompt
+    return await service.get_active_prompt()
 
 @router.patch("/{prompt_id}", response_model=PromptRead)
 async def update(prompt_id: int, prompt_in: PromptUpdate, session: AsyncSession = Depends(get_session), current_user=Depends(get_current_user)):

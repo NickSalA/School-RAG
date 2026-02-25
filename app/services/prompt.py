@@ -1,13 +1,16 @@
 """Servicio para la gestión de prompts, incluyendo la creación, actualización y recuperación del prompt activo."""
 
+from datetime import datetime
+from os import system
 from typing import Any
 
 from sqlmodel.ext.asyncio.session import AsyncSession
+from tenacity import P
 from app.agents.flow import prompt_system
 from app.repositories.prompt_repository import PromptRepository
 from app.repositories.log_repository import LogRepository
 from app.models.log_model import ResourceType
-from app.schemas.prompt_schema import PromptCreate, PromptUpdate, PromptRead
+from app.schemas.prompt_schema import PromptCreate, PromptUpdate, PromptRead, PromptStructure
 from app.schemas.log_schema import LogCreate
 from app.exceptions.database import NotFoundException
 
@@ -16,12 +19,22 @@ class PromptService:
         self.prompt_repo = PromptRepository(session)
         self.log_repo = LogRepository(session)
 
-    async def get_active_prompt(self) -> tuple[list[dict[str, Any]], int | None]:
+    async def get_active_prompt(self) -> PromptRead:
         """Obtiene la versión activa del prompt."""
         db_prompt = await self.prompt_repo.get_active_prompt()
         if db_prompt is None:
-            return prompt_system(), None
-        return db_prompt.system_message, db_prompt.id
+            system_message = []
+            for section in prompt_system():
+                system_message.append(PromptStructure(section=section["section"], content=section["content"]))
+            return PromptRead(
+                id=0,
+                version_name="default",
+                system_message=system_message,
+                user_id=None,
+                is_active=True,
+                created_at=datetime(2000, 1, 1)
+            )
+        return PromptRead.model_validate(db_prompt)
 
     async def create(self, prompt_in: PromptCreate, current_user_id: int) -> PromptRead:
         """Crea un nuevo prompt."""        

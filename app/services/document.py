@@ -7,6 +7,8 @@ import aiofiles
 
 from sqlmodel.ext.asyncio.session import AsyncSession
 
+from loguru import logger
+
 from qdrant_client.http.exceptions import ResponseHandlingException, UnexpectedResponse
 from httpx import TimeoutException, ConnectError
 
@@ -33,13 +35,19 @@ class DocumentService:
         self.index = settings.INDEX_NAME
         self.document_repo = DocumentRepository(client)
 
-    async def read_documents(self, file_path):
+    async def read_documents(self, file_path, debug: bool = False):
         """Lee y procesa un documento utilizando el analizador de LlamaParse."""
         parser = get_analyzer()
-        document = parser.aload_data(file_path)
-        return await document
+        document = await parser.aload_data(file_path)
 
-    async def upload_document(self, file, user_id: int) -> bool:
+        if debug:
+            logger.debug(f"Documento: {file_path} leído y procesado con {len(document)} chunks.")
+            for i, chunk in enumerate(document):
+                logger.debug(f"Chunk {i} | {len(chunk.get_content())} caracteres | Contenido: {chunk.get_content()[:150]}...")
+                return document
+        return document
+
+    async def upload_document(self, file, user_id: int, debug: bool = False) -> bool:
         """Carga un documento, lo procesa y lo almacena en el vector store."""
         temp_dir = tempfile.mkdtemp()
         safe_filename = os.path.basename(file.filename)
@@ -49,7 +57,7 @@ class DocumentService:
                 content = await file.read()
                 await temp_file.write(content)
 
-            document = await self.read_documents(temp_path)
+            document = await self.read_documents(temp_path, debug=debug)
 
             for i, doc in enumerate(document):
                 doc.id_ = f"{safe_filename}_doc_{i}"

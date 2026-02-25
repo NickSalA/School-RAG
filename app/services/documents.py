@@ -7,6 +7,8 @@ import shutil
 from llama_index.core import VectorStoreIndex, StorageContext
 from llama_index.core.node_parser import SentenceWindowNodeParser
 
+from loguru import logger
+
 # Excepciones de servicios externos
 from qdrant_client.http.exceptions import ResponseHandlingException, UnexpectedResponse
 from httpx import TimeoutException, ConnectError
@@ -23,11 +25,15 @@ from app.util.files import get_files, delete_collection_points, ensure_collectio
 # Excepciones personalizadas
 from app.exceptions.cloud import DocumentAIError, DocumentTimeoutError
 
-def read_document(file_path: str):
+def read_document(file_path: str, debug: bool = False):
     """Lee y procesa un documento usando LlamaParse."""
 
     parser = get_analyzer()
     document = parser.load_data(file_path)
+    logger.debug(f"Documento: {file_path} leído y procesado con {len(document)} chunks.")
+    if debug:
+        for i, chunk in enumerate(document):
+            logger.debug(f"Contenido del chunk {i}: {chunk.get_content()[:150]}...")
     return document
 
 def get_node_parser():
