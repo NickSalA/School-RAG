@@ -1,11 +1,9 @@
 """Servicio para la gestión de prompts, incluyendo la creación, actualización y recuperación del prompt activo."""
 
 from datetime import datetime
-from os import system
-from typing import Any
 
 from sqlmodel.ext.asyncio.session import AsyncSession
-from tenacity import P
+
 from app.agents.flow import prompt_system
 from app.repositories.prompt_repository import PromptRepository
 from app.repositories.log_repository import LogRepository
