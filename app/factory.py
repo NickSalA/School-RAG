@@ -88,8 +88,8 @@ def create() -> FastAPI:
         SessionMiddleware,
         secret_key=settings.SECRET_KEY,
         same_site="lax",
-        https_only=False,   # pon True en producción HTTPS
-        # session_cookie="support_session",
+        https_only=settings.PROD,   # pon True en producción HTTPS
+        session_cookie="support_session",
     )
 
     # Middleware de logging con Loguru
