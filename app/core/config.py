@@ -81,6 +81,7 @@ class Settings(BaseSettings):
     LOG_LEVEL: str = "INFO"
     GLOBAL_PREFIX: str = "/api/v1"
     CORS_ORIGINS: list[str] = ["http://localhost:8000", "http://localhost:3000", "http://localhost:9002", "https://edu-ai-iota-lemon.vercel.app/"]
+    DEBUG: bool = Field(default=False)
 
     SECRET_KEY: str = Field(default_factory=lambda: get_secret("SECRET-KEY"))
     ALGORITHM: str = Field(default_factory=lambda: get_secret("ALGORITHM"))

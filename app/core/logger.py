@@ -47,8 +47,12 @@ def setup():
             "format": "<green>{time:YYYY-MM-DD HH:mm:ss}</green> | <level>{level: <8}</level> | <cyan>{name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan> - <level>{message}</level>",
             "diagnose": False,
             "backtrace": False,
-        },
-        {
+        }
+    ]
+
+    if settings.DEBUG:
+        handlers.append(
+            {
             "sink": "logs/app.log",
             "rotation": "50 MB",
             "retention": "10 days",
@@ -57,8 +61,9 @@ def setup():
             "level": "INFO",
             "diagnose": True,
             "backtrace": True,
-        },
-    ]
+            }
+        )
+
     if LogtailHandler and settings.BETTER_STACK_TOKEN:
         handler_better_stack = LogtailHandler(source_token=settings.BETTER_STACK_TOKEN, host=settings.BETTER_STACK_HOST)
         handlers.append(
