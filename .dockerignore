@@ -3,8 +3,13 @@
 .gitignore
 .github
 
+# Virtual environments
+.venv
+venv/
+
 # Python
 __pycache__
+__pycache__/
 *.py[cod]
 *$py.class
 .pytest_cache
@@ -13,6 +18,7 @@ htmlcov
 .venv
 venv
 env
+*.pyc
 
 # Environment variables
 .env
@@ -56,3 +62,9 @@ logs/
 
 # Misc
 pyproject.toml
+pipfile
+pipfile.lock
+
+# Database
+*.sqlite3
+*.db

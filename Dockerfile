@@ -1,40 +1,48 @@
-# ##########################
+# ########################################
 # ETAPA 1: BUILDER
-# ##########################
+# ########################################
 FROM python:3.12-slim AS builder
 
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
+
 WORKDIR /app
 
-# Instalamos herramientas necesarias para construir (git, compiladores, etc.)
-RUN apt-get update && apt-get install -y git
+# 1. Creamos el entorno virtual directamente (¡Ya no necesitamos apt-get!)
+RUN python -m venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
 
-# Configuramos Pipenv para que cree el entorno virtual DENTRO de la carpeta del proyecto
-# Esto es clave para poder copiarlo después fácilmente.
-ENV PIPENV_VENV_IN_PROJECT=1
+# 2. Copiamos SOLO los requerimientos para aprovechar la caché
+COPY requirements.txt .
 
-COPY Pipfile Pipfile.lock ./
+# 3. Instalamos dependencias. Las wheels de asyncpg/psycopg3 se instalarán rapidísimo
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
 
-# Instalamos pipenv y las dependencias en el .venv
-RUN pip install pipenv && \
-    pipenv install --deploy
-
-# ##########################
+# ########################################
 # ETAPA 2: RUNNER (Final)
-# ##########################
+# ########################################
 FROM python:3.12-slim AS runner
 
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PATH="/opt/venv/bin:$PATH"
+
 WORKDIR /app
 
-# TRUCO DE MAGIA:
-# Copiamos la carpeta .venv desde la etapa "builder".
-# Ya contiene todas las librerías instaladas.
-COPY --from=builder /app/.venv /app/.venv
-ENV PATH="/app/.venv/bin:$PATH"
+# 1. Creamos el usuario no-root (Seguridad)
+RUN groupadd -r appuser && useradd -r -g appuser appuser
 
-# Copiamos el código fuente de tu app
-COPY . .
+# 2. Traemos el entorno virtual listo desde el builder
+COPY --from=builder /opt/venv /opt/venv
+
+# 3. Copiamos el código de la app con los permisos correctos
+COPY --chown=appuser:appuser . .
+
+# 4. Cambiamos al usuario seguro
+USER appuser
 
 EXPOSE 8000
 
-# Ejecutamos uvicorn directamente (ya está en el PATH gracias a la línea de ENV)
+# 5. Arrancamos uvicorn
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
