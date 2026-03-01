@@ -110,7 +110,7 @@ class FlowAgent:
 
         primary_llm = get_llm()
         secondary_llm = get_secondary_llm()
-        self.llm = primary_llm.with_fallbacks([secondary_llm])
+        self.llm = secondary_llm.with_fallbacks([primary_llm])
 
         bc_tool_instance = await bc_tool(settings.INDEX_NAME)
 
