@@ -2,7 +2,7 @@
 
 from fastapi import APIRouter, Depends
 from sqlmodel.ext.asyncio.session import AsyncSession
-from app.schemas.prompt_schema import PromptCreate, PromptRead, PromptStructure, PromptUpdate
+from app.schemas.prompt_schema import PromptCreate, PromptRead, PromptUpdate
 from app.services.prompt_service import PromptService
 from app.core.database import get_session
 from app.api.dependencies.dep_auth import get_current_user
@@ -15,7 +15,7 @@ async def create(prompt_in: PromptCreate, session: AsyncSession = Depends(get_se
     service = PromptService(session)
     return await service.create(prompt_in, current_user.id)
 
-@router.get("/active", response_model=list[PromptStructure])
+@router.get("/active", response_model=PromptRead)
 async def get_active(session: AsyncSession = Depends(get_session)):
     """Endpoint para obtener el prompt activo."""
     service = PromptService(session)

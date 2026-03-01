@@ -35,18 +35,18 @@ class LoguruMiddleware(BaseHTTPMiddleware):
             try:
                 response = await call_next(request)
                 process_time = time.time() - start_time
-                log_message = f"{request.method} {request.url.path} | Status: {response.status_code} ({process_time:.2f}s)"                
+                log_message = f"{request.method} {request.url.path} | Status: {response.status_code} ({process_time:.2f}s)"
                 if response.status_code >= 500:
                     logger.error(log_message)
                 else:
                     logger.info(log_message)
-                    
+
                 return response
 
             except Exception as e:
                 process_time = time.time() - start_time
                 error_type = type(e).__name__
-                error_details = str(e).split('\n')[0]
+                error_details = str(e).rsplit('\n', maxsplit=1)[0]
                 logger.error(
                     f"{request.method} {request.url.path} | ERROR: {error_type}: {error_details} "
                     f"({process_time:.2f}s)"
