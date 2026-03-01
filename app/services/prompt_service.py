@@ -58,7 +58,6 @@ class PromptService:
 
     async def create(self, prompt_in: PromptCreate, current_user_id: int) -> PromptRead:
         """Crea un nuevo prompt."""        
-        active_prompt = None
         old_prompt = None
         old_state = None
 
@@ -66,15 +65,14 @@ class PromptService:
             active_prompt = await self.prompt_repo.get_active_prompt()
 
             if active_prompt:
+                # Capturar datos ANTES de modificar el objeto
+                old_prompt = _prompt_to_read(active_prompt)
+                old_state = [{"section": s.section, "content": s.content} for s in old_prompt.system_message]
                 await self.prompt_repo.deactivate_prompt(active_prompt)
 
         prompt_in.user_id = current_user_id
         prompt = await self.prompt_repo.create(prompt_in)
         new_prompt = _prompt_to_read(prompt)
-
-        if active_prompt:
-            old_prompt = _prompt_to_read(active_prompt)
-            old_state = [{"section": s.section, "content": s.content} for s in old_prompt.system_message] if old_prompt else None
 
         new_state = [{"section": s.section, "content": s.content} for s in new_prompt.system_message]
 
