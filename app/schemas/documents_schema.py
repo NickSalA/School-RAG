@@ -1,3 +1,5 @@
+"""Schemas para la API de documentos."""
+
 from typing import Optional
 from pydantic import BaseModel, Field
 
