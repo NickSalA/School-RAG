@@ -7,10 +7,32 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 from app.agents.flow import prompt_system
 from app.repositories.prompt_repository import PromptRepository
 from app.repositories.log_repository import LogRepository
+from app.models.prompt_model import Prompt
 from app.models.log_model import ResourceType
 from app.schemas.prompt_schema import PromptCreate, PromptUpdate, PromptRead, PromptStructure
 from app.schemas.log_schema import LogCreate
 from app.exceptions.database import NotFoundException
+
+
+def _prompt_to_read(db_prompt: Prompt) -> PromptRead:
+    """Convierte un objeto Prompt de SQLAlchemy a PromptRead de Pydantic.
+    
+    Extrae los datos explícitamente para evitar problemas de MissingGreenlet
+    cuando Pydantic intenta acceder a atributos del ORM fuera del contexto async.
+    """
+    system_message = [
+        PromptStructure(section=s["section"], content=s["content"])
+        for s in db_prompt.system_message
+    ]
+    return PromptRead(
+        id=db_prompt.id,
+        version_name=db_prompt.version_name,
+        system_message=system_message,
+        user_id=db_prompt.user_id,
+        is_active=db_prompt.is_active,
+        created_at=db_prompt.created_at
+    )
+
 
 class PromptService:
     def __init__(self, session: AsyncSession):
@@ -32,7 +54,7 @@ class PromptService:
                 is_active=True,
                 created_at=datetime(2000, 1, 1)
             )
-        return PromptRead.model_validate(db_prompt)
+        return _prompt_to_read(db_prompt)
 
     async def create(self, prompt_in: PromptCreate, current_user_id: int) -> PromptRead:
         """Crea un nuevo prompt."""        
@@ -48,10 +70,10 @@ class PromptService:
 
         prompt_in.user_id = current_user_id
         prompt = await self.prompt_repo.create(prompt_in)
-        new_prompt = PromptRead.model_validate(prompt)
+        new_prompt = _prompt_to_read(prompt)
 
         if active_prompt:
-            old_prompt = PromptRead.model_validate(active_prompt)
+            old_prompt = _prompt_to_read(active_prompt)
             old_state = [{"section": s.section, "content": s.content} for s in old_prompt.system_message] if old_prompt else None
 
         new_state = [{"section": s.section, "content": s.content} for s in new_prompt.system_message]
@@ -108,4 +130,4 @@ class PromptService:
         )
         await self.log_repo.create(log)
 
-        return PromptRead.model_validate(updated_prompt)
+        return _prompt_to_read(updated_prompt)

@@ -2,11 +2,23 @@
 
 from sqlmodel.ext.asyncio.session import AsyncSession
 from app.repositories.user_repository import UserRepository
+from app.models.user_model import User
 from app.core.security import verify_password, create_access_token
 from app.schemas.auth_schema import LoginRequest, LoginResponse
 from app.schemas.user_schema import UserRead
 
 from app.exceptions.auth import InvalidCredentialsError, UserNotFoundError
+
+
+def _user_to_read(db_user: User) -> UserRead:
+    """Convierte un objeto User de SQLAlchemy a UserRead de Pydantic."""
+    return UserRead(
+        id=db_user.id,
+        name=db_user.name,
+        email=db_user.email,
+        role=db_user.role
+    )
+
 
 class AuthService:
     def __init__(self, session: AsyncSession):
@@ -27,5 +39,5 @@ class AuthService:
         return LoginResponse(
             access_token=access_token,
             token_type="bearer",
-            user=UserRead.model_validate(user)
+            user=_user_to_read(user)
         )

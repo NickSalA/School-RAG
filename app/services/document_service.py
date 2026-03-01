@@ -65,11 +65,13 @@ class DocumentService:
 
             chunks = clean_content(document)
 
+            logger.debug(f"[SERVICE] Enviando {len(chunks)} chunks al repositorio")
             await self.document_repo.upload_document(
                 index=self.index,
                 filename=safe_filename,
                 chunks=chunks
             )
+            logger.debug("[SERVICE] Upload al repositorio completado")
 
             log = LogCreate(
                 resource_type=ResourceType.QDRANT_COLLECTION,
@@ -85,7 +87,9 @@ class DocumentService:
             )
 
             if self.log_repo:
+                logger.debug("[SERVICE] Guardando log en BD...")
                 await self.log_repo.create(log)
+                logger.debug("[SERVICE] Log guardado exitosamente")
             return True
         except (TimeoutException, ConnectError) as e:
             raise DocumentTimeoutError(f"Timeout al conectar con Qdrant: {e}") from e
