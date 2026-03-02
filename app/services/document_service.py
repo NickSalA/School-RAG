@@ -14,17 +14,16 @@ from httpx import TimeoutException, ConnectError
 
 from app.core.config import settings
 
-from app.models.log_model import ResourceType
+from app.models import ResourceType
 
-from app.schemas.log_schema import LogCreate
+from app.schemas import LogCreate
 
-from app.repositories.document_repository import DocumentRepository
-from app.repositories.log_repository import LogRepository
+from app.repositories import DocumentRepository, LogRepository
 
 from app.adapters.qdrant import AsyncQdrantClient
 from app.adapters.llamaparse import get_analyzer
 
-from app.util.text import clean_content
+from app.util import clean_content
 
 from app.exceptions.cloud import DocumentAIError, DocumentTimeoutError
 

@@ -4,9 +4,11 @@ from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from app.core.security import get_password_hash
-from app.models.user_model import User
-from app.schemas.user_schema import UserCreate, UserUpdate
-from app.repositories.base import BaseRepository
+
+from app.repositories import BaseRepository
+
+from app.models import User
+from app.schemas import UserCreate, UserUpdate
 
 class UserRepository(BaseRepository[User, UserCreate, UserUpdate]):
     def __init__(self, session: AsyncSession):

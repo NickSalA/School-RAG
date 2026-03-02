@@ -1,7 +1,7 @@
 "Esquema de usuario para la API."""
 
 from pydantic import BaseModel, ConfigDict, EmailStr, Field
-from app.models.user_model import Role
+from app.models import Role
 
 class UserBase(BaseModel):
     name: str = Field(..., description="Nombre completo del usuario.")

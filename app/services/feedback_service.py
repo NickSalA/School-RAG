@@ -1,24 +1,12 @@
 """Servicio para gestionar el feedback de los usuarios sobre las respuestas del modelo."""
 
 from sqlmodel.ext.asyncio.session import AsyncSession
-from app.repositories.feedback_repository import FeedbackRepository
-from app.models.feedback_model import Feedback
-from app.schemas.feedback_schema import FeedbackCreate, FeedbackRead
-from app.services.conversation_service import ConversationService
+
+from app.repositories import FeedbackRepository
+from app.schemas import FeedbackCreate, FeedbackRead
+from app.services import ConversationService
 
 from app.exceptions.database import NotFoundException
-
-
-def _feedback_to_read(db_feedback: Feedback) -> FeedbackRead:
-    """Convierte un objeto Feedback de SQLAlchemy a FeedbackRead de Pydantic."""
-    return FeedbackRead(
-        id=db_feedback.id,
-        task_resolved=db_feedback.task_resolved,
-        rating=db_feedback.rating,
-        comments=db_feedback.comments,
-        conversation_id=db_feedback.conversation_id,
-        created_at=db_feedback.created_at
-    )
 
 
 class FeedbackService:
@@ -40,9 +28,9 @@ class FeedbackService:
         feedback = await self.feedback_repository.get(feedback_id)
         if feedback is None:
             raise NotFoundException(f"Feedback con ID {feedback_id} no encontrado")
-        return _feedback_to_read(feedback)
+        return FeedbackRead.model_validate(feedback)
 
     async def get_all(self) -> list[FeedbackRead]:
         """Obtiene todo el feedback registrado."""
         feedbacks = await self.feedback_repository.get_all()
-        return [_feedback_to_read(feedback) for feedback in feedbacks]
+        return [FeedbackRead.model_validate(feedback) for feedback in feedbacks]

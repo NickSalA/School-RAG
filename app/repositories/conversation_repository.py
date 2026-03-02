@@ -2,9 +2,9 @@
 
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from app.models.conversation_model import Conversation
-from app.schemas.conversation_schema import ConversationCreate, ConversationUpdate
-from app.repositories.base import BaseRepository
+from app.models import Conversation
+from app.schemas import ConversationCreate, ConversationUpdate
+from app.repositories import BaseRepository
 
 from app.exceptions.database import NotFoundException
 

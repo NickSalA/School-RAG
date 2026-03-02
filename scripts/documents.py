@@ -20,10 +20,12 @@ from app.adapters.openai import configure_embedding
 
 # Utilitarios para procesamiento de texto y manejo de archivos
 from app.util.text import clean_content
-from app.util.files import get_files, delete_collection_points, ensure_collection_exists
 
 # Excepciones personalizadas
 from app.exceptions.cloud import DocumentAIError, DocumentTimeoutError
+
+from scripts.files import get_files, delete_collection_points, ensure_collection_exists
+
 
 def read_document(file_path: str, debug: bool = False):
     """Lee y procesa un documento usando LlamaParse."""

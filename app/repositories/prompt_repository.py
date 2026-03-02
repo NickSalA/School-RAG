@@ -2,9 +2,9 @@
 
 from sqlmodel.ext.asyncio.session import AsyncSession
 from sqlmodel import select
-from app.models.prompt_model import Prompt
-from app.schemas.prompt_schema import PromptCreate, PromptUpdate
-from app.repositories.base import BaseRepository
+from app.models import Prompt
+from app.schemas import PromptCreate, PromptUpdate
+from app.repositories import BaseRepository
 
 class PromptRepository(BaseRepository[Prompt, PromptCreate, PromptUpdate]):
     def __init__(self, session: AsyncSession):

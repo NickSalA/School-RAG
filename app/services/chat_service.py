@@ -4,12 +4,11 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 
 from app.agents.flow import FlowAgent
 
-from app.schemas.conversation_schema import ConversationCreate
+from app.schemas import ConversationCreate
 
-from app.util.format import format_prompt, format_message
+from app.util import format_prompt, format_message
 
-from app.services.conversation_service import ConversationService
-from app.services.prompt_service import PromptService
+from app.services import ConversationService, PromptService
 
 class ChatService:
     def __init__(self, session: AsyncSession, agent: FlowAgent):

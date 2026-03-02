@@ -39,7 +39,7 @@ except OperationalError as e:
 
 async def get_session():
     """Proporciona una sesión de base de datos."""
-    async with AsyncSession(engine) as session:
+    async with AsyncSession(engine, expire_on_commit=False) as session:
         try:
             yield session
             await session.commit()

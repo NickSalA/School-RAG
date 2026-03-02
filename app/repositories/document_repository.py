@@ -1,11 +1,20 @@
 """Repositorio para la gestión de documentos, incluyendo la creación, actualización y eliminación de documentos."""
 
+# Librerías para manejo de concurrencia y asincronía
 from fastapi.concurrency import run_in_threadpool
+
+# Librerías para manejo de bases de datos y clientes externos
 from qdrant_client import AsyncQdrantClient
 from qdrant_client.http import models
+
+# Librerías para manejo de archivos y procesamiento de texto
 from llama_index.core.node_parser import SentenceWindowNodeParser
 from llama_index.core import VectorStoreIndex, StorageContext
+
+# Adapters para servicios externos
 from app.adapters.qdrant import get_vector_store, connect_vectorial_client
+
+# Excepciones personalizadas
 from app.exceptions.cloud import DocumentAIError
 
 class DocumentRepository:

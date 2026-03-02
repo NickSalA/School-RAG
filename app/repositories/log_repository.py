@@ -5,11 +5,11 @@ from typing import Sequence
 from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from app.repositories.base import BaseRepository
+from app.repositories import BaseRepository
 
-from app.models.log_model import Log
-from app.schemas.log_schema import LogCreate
-from app.schemas.log_schema import ResourceType
+from app.models import Log
+from app.schemas import LogCreate
+from app.models import ResourceType
 
 class LogRepository(BaseRepository[Log, LogCreate, LogCreate]):
     def __init__(self, session: AsyncSession):

@@ -4,8 +4,8 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 
 from app.repositories.base import BaseRepository
 
-from app.models.feedback_model import Feedback
-from app.schemas.feedback_schema import FeedbackCreate
+from app.models import Feedback
+from app.schemas import FeedbackCreate
 
 class FeedbackRepository(BaseRepository[Feedback, FeedbackCreate, FeedbackCreate]):
     def __init__(self, session: AsyncSession):

@@ -3,7 +3,7 @@
 from typing import Any, Dict
 from datetime import datetime
 from pydantic import BaseModel, ConfigDict, Field
-from app.models.log_model import ResourceType
+from app.models import ResourceType
 
 class LogBase(BaseModel):
     user_id: int = Field(..., description="ID del usuario al que se refiere este log.")
