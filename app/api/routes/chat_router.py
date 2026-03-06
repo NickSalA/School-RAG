@@ -30,5 +30,5 @@ async def agente(body: ChatIn, orq: FlowAgentDep, session: AsyncSession = Depend
     """Endpoint para interactuar con el agente de flujo."""
     service = ChatService(session, orq)
 
-    response, conversation_id, thread_id = await service.chat(body.mensaje, body.thread_id, body.conversation_id)
+    response, conversation_id, thread_id = await service.chat(body.mensaje, body.user_id, body.thread_id, body.conversation_id)
     return AgentMessageJson(text=response, thread_id=thread_id, conversation_id=conversation_id)

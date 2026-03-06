@@ -1,26 +1,7 @@
 """Funciones utilitarias para crear y ejecutar agentes de LangGraph."""
 
-# Utilitario para crear y ejecutar agentes
-from langchain.agents import create_agent
-
-# Manejo de memoria del agente
-from langgraph.checkpoint.memory import InMemorySaver
-
 from google.api_core.exceptions import ServiceUnavailable, ResourceExhausted, DeadlineExceeded, Aborted
 from app.exceptions.cloud import AgentExecutionError, AgentNotAvailableError, AgentResponseError, GenerativeAIQuotaError, GenerativeAITimeoutError
-
-def get_agent(
-    llm,
-    tools: list | None = None,
-    memory=None,
-):
-    """Crear un agente con las herramientas y contexto dados."""
-    if tools is None:
-        tools = []
-    agent = create_agent(
-        model=llm, tools=tools, checkpointer=memory if memory else InMemorySaver()
-    )
-    return agent
 
 async def execute(agent, query: str, system_prompt: str, config=None, verbose: bool = True):
     """Ejecutar el agente con la consulta dada y configuración opcional."""

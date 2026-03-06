@@ -52,9 +52,13 @@ def create() -> FastAPI:
         """
         logger.info("Iniciando la aplicación Posgrado Backend...")
         setup()
+        logger.info("[LIFESPAN] Logger configurado.")
         configure_embedding()
+        logger.info("[LIFESPAN] Embeddings configurados.")
         agent = get_flow_agent()
+        logger.info("[LIFESPAN] Inicializando agente...")
         await agent.initialize()
+        logger.info("[LIFESPAN] Agente inicializado.")
         async with engine.begin() as conn:
             await conn.execute(text("SELECT 1"))
         logger.info("Configuración establecida exitosamente.")
