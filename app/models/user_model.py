@@ -6,6 +6,7 @@ from sqlmodel import SQLModel, Field
 from sqlalchemy.dialects.postgresql import ENUM as PgEnum
 from sqlalchemy import Column, Integer, String
 class Role(str, Enum):
+    USER = "USER"
     ADMIN = "ADMIN"
     SUPERADMIN = "SUPERADMIN"
 class User(SQLModel, table=True):

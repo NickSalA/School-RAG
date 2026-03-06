@@ -9,6 +9,7 @@ from sqlalchemy.dialects.postgresql import JSONB, ENUM as PgEnum
 from sqlalchemy import Column, Integer, DateTime, String
 
 class ResourceType(str, Enum):
+    USER = "USER"
     QDRANT_COLLECTION = "QDRANT_COLLECTION"
     SYSTEM_PROMPT = "SYSTEM_PROMPT"
 
