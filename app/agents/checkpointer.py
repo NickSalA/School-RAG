@@ -1,4 +1,7 @@
 """Gestión del estado/memoria de conversaciones del agente."""
+
+from loguru import logger
+
 from psycopg_pool import AsyncConnectionPool
 from psycopg.rows import dict_row
 from langgraph.checkpoint.postgres.aio import AsyncPostgresSaver
@@ -6,7 +9,6 @@ from langgraph.store.postgres.aio import AsyncPostgresStore
 from langchain_openai import OpenAIEmbeddings
 
 from app.core.config import settings
-from loguru import logger
 
 _pool = None
 _saver = None

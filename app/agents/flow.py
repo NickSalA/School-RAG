@@ -56,11 +56,10 @@ class FlowAgent:
         try:
             self.agent_flow = BaseAgent(
                 llm=primary_llm,
-                middlewares= ModelFallbackMiddleware(secondary_llm),
+                middlewares= [ModelFallbackMiddleware(secondary_llm)],
                 tools = [bc_tool_instance, get_feedback_tool, tool_personal_pref, tool_suggest_technical_fix],
                 memory=get_checkpointer(),
                 store=get_store(),
-                checkpoint_ns="school-rag",
             )
             logger.debug("[FlowAgent] BaseAgent construido exitosamente.")
         except Exception as e:

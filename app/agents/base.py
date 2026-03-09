@@ -15,21 +15,13 @@ class BaseAgent:
     def __init__(self,
         llm: BaseChatModel,
         middlewares,
-        checkpoint_ns: str = "school-rag",
         tools: list | None = None,
         memory=None,
         store=None,
     ):
-        self.checkpoint_ns = checkpoint_ns
         self.store = store
-        # Asegurar que middleware sea siempre una lista
-        if middlewares is None:
-            mw_list = []
-        elif isinstance(middlewares, (list, tuple)):
-            mw_list = list(middlewares)
-        else:
-            mw_list = [middlewares]
-        self.agent = create_agent(model=llm, tools=tools or [], checkpointer=memory, store=store, middleware=mw_list)
+
+        self.agent = create_agent(model=llm, tools=tools or [], checkpointer=memory, store=store, middleware=middlewares)
         logger.debug("[BaseAgent] create_agent completado.")
 
     def get_store(self):
