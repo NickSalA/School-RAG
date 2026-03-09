@@ -121,6 +121,13 @@ class Settings(BaseSettings):
             return "sqlite:///./test.db"
         return f"postgresql+asyncpg://{self.DATABASE_USER}:{self.DATABASE_PASSWORD}@{self.DATABASE_HOST}:{self.DATABASE_PORT}/{self.DATABASE_NAME}"
 
+    @property
+    def CONN_STRING(self) -> str: #pylint: disable=invalid-name
+        """Recupera la cadena de conexión para el checkpointer"""
+        if not self.DATABASE_HOST:
+            return "sqlite:///./test.db"
+        return f"postgresql://{self.DATABASE_USER}:{self.DATABASE_PASSWORD}@{self.DATABASE_HOST}:{self.DATABASE_PORT}/{self.DATABASE_NAME}?sslmode=require"
+
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",

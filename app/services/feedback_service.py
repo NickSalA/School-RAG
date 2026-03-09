@@ -4,7 +4,7 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 
 from app.repositories import FeedbackRepository
 from app.schemas import FeedbackCreate, FeedbackRead
-from app.services import ConversationService
+from app.services.conversation_service import ConversationService
 
 from app.exceptions.database import NotFoundException
 

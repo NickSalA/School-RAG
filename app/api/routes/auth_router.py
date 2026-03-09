@@ -1,5 +1,7 @@
 """Router para autenticación y gestión de sesiones."""
 
+from typing import Annotated
+
 # FastAPI
 from fastapi import APIRouter, Depends
 from fastapi.security import OAuth2PasswordRequestForm
@@ -18,8 +20,11 @@ from app.services.auth_service import AuthService
 
 router = APIRouter()
 
+FormDep = Annotated[OAuth2PasswordRequestForm, Depends()]
+SessionDep = Annotated[AsyncSession, Depends(get_session)]
+
 @router.post("/login", response_model=LoginResponse)
-async def login(form_data: OAuth2PasswordRequestForm = Depends(), session: AsyncSession = Depends(get_session)):
+async def login(form_data: FormDep, session: SessionDep):
     """
     Endpoint para iniciar sesión.
     """

@@ -1,6 +1,7 @@
 """Módulo de servicios para la aplicación."""
 
 from .auth_service import AuthService
+from .chat_service import ChatService
 from .user_service import UserService
 from .conversation_service import ConversationService
 from .document_service import DocumentService

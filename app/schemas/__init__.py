@@ -7,3 +7,4 @@ from .documents_schema import ResponseJSON, DocumentJSON
 from .user_schema import UserCreate, UserRead, UserUpdate
 from .log_schema import LogCreate, LogRead
 from .prompt_schema import PromptCreate, PromptUpdate, PromptRead, PromptStructure
+from .chat_schema import AgentMessageJson, ChatIn

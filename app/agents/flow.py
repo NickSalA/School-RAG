@@ -3,6 +3,8 @@
 Este módulo implementa el FlowAgent, un asistente especializado en ayudar a estudiantes a encontrar soluciones normativas para evitar la deserción universitaria.
 """
 
+from loguru import logger
+
 from langchain.agents.middleware import ModelFallbackMiddleware
 
 # Importa el wrapper base del agente
@@ -23,8 +25,6 @@ from app.core.config import settings
 
 from app.exceptions.cloud import AgentNotInitializedError
 
-from loguru import logger
-
 class FlowAgent:
     def __init__(self):
         self.llm = None
@@ -35,24 +35,24 @@ class FlowAgent:
         if self.agent_flow is not None:
             return
 
-        logger.info("[FlowAgent] Inicializando memoria PostgreSQL...")
+        logger.debug("[FlowAgent] Inicializando memoria PostgreSQL...")
         # Inicializamos la memoria PostgreSQL asíncronamente
         await init_postgres_memory()
-        logger.info("[FlowAgent] Memoria PostgreSQL inicializada.")
+        logger.debug("[FlowAgent] Memoria PostgreSQL inicializada.")
 
-        logger.info("[FlowAgent] Creando LLM primario (Gemini)...")
+        logger.debug("[FlowAgent] Creando LLM primario (Gemini)...")
         primary_llm = get_llm()
-        logger.info("[FlowAgent] LLM primario creado.")
+        logger.debug("[FlowAgent] LLM primario creado.")
 
-        logger.info("[FlowAgent] Creando LLM secundario (Groq)...")
+        logger.debug("[FlowAgent] Creando LLM secundario (Groq)...")
         secondary_llm = get_secondary_llm()
-        logger.info("[FlowAgent] LLM secundario creado.")
+        logger.debug("[FlowAgent] LLM secundario creado.")
 
-        logger.info("[FlowAgent] Creando bc_tool (retriever)...")
+        logger.debug("[FlowAgent] Creando bc_tool (retriever)...")
         bc_tool_instance = await bc_tool(settings.INDEX_NAME)
-        logger.info("[FlowAgent] bc_tool creado.")
+        logger.debug("[FlowAgent] bc_tool creado.")
 
-        logger.info("[FlowAgent] Construyendo BaseAgent...")
+        logger.debug("[FlowAgent] Construyendo BaseAgent...")
         try:
             self.agent_flow = BaseAgent(
                 llm=primary_llm,
@@ -62,20 +62,13 @@ class FlowAgent:
                 store=get_store(),
                 checkpoint_ns="school-rag",
             )
-            logger.info("[FlowAgent] BaseAgent construido exitosamente.")
+            logger.debug("[FlowAgent] BaseAgent construido exitosamente.")
         except Exception as e:
-            logger.exception("[FlowAgent] ERROR construyendo BaseAgent: {}", e)
-            raise
+            raise AgentNotInitializedError(f"Error al inicializar el agente: {e}") from e
 
-    async def answer_message(self, message: str, system_prompt: str, thread_id: str = "", user_id: str = "anon") -> str:
+    async def answer_message(self, message: str, system_prompt: str, conversation_id: int, checkpoint_ns: int) -> str:
         """Respuesta del agente"""
         if self.agent_flow is None:
             raise AgentNotInitializedError("El agente no ha sido inicializado. Llama a initialize() antes de usarlo.")
 
-        return await self.agent_flow.answer(message, system_prompt, thread_id, user_id)
-
-    def generate_thread_id(self) -> str:
-        """Generar un nuevo ID de hilo para resetear la memoria"""
-        if self.agent_flow is None:
-            raise AgentNotInitializedError("El agente no ha sido inicializado. Llama a initialize() antes de usarlo.")
-        return self.agent_flow.generate_thread_id()
+        return await self.agent_flow.answer(message, system_prompt, conversation_id, checkpoint_ns)

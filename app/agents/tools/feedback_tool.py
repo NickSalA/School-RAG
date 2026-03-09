@@ -2,9 +2,9 @@
 
 from langchain_core.tools import tool
 
-from app.schemas.feedback_schema import FeedbackCreate
+from app.schemas import FeedbackCreate
 
-from app.services.feedback_service import FeedbackService
+from app.services import FeedbackService
 
 from app.core.database import get_session_context
 

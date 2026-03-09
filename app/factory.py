@@ -61,6 +61,8 @@ def create() -> FastAPI:
         logger.info("[LIFESPAN] Agente inicializado.")
         async with engine.begin() as conn:
             await conn.execute(text("SELECT 1"))
+        logger.info("[LIFESPAN] Conexión a la base de datos verificada.")
+        
         logger.info("Configuración establecida exitosamente.")
         yield
         await engine.dispose()

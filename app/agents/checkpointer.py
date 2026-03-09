@@ -8,14 +8,6 @@ from langchain_openai import OpenAIEmbeddings
 from app.core.config import settings
 from loguru import logger
 
-_raw_conn_string = settings.DATABASE_URL.replace("postgresql+asyncpg://", "postgresql://")
-# Agregar sslmode al connection string si no lo tiene
-if "sslmode" not in _raw_conn_string:
-    separator = "&" if "?" in _raw_conn_string else "?"
-    _conn_string = f"{_raw_conn_string}{separator}sslmode=require"
-else:
-    _conn_string = _raw_conn_string
-
 _pool = None
 _saver = None
 _store = None
@@ -30,7 +22,7 @@ async def init_postgres_memory():
     # row_factory=dict_row requerido por LangGraph (AsyncConnection[DictRow])
     logger.info("[Checkpointer] Creando pool de conexiones (psycopg, sin prepared statements)...")
     _pool = AsyncConnectionPool(
-        conninfo=_conn_string,
+        conninfo=settings.CONN_STRING,
         open=False,
         kwargs={"prepare_threshold": 0, "row_factory": dict_row, "autocommit": True},
     )
