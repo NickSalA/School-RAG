@@ -15,6 +15,8 @@ from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 
 # Configuración del sistema
+from app.agents.checkpointer import close_postgres_memory, init_postgres_memory
+
 from app.core.config import settings
 
 # Configuración de logging
@@ -31,7 +33,8 @@ from app.adapters.openai import configure_embedding
 from app.core.database import engine
 
 from app.api.dependencies.dep_auth import get_current_user
-from app.api.dependencies.dep_chat import get_flow_agent
+
+from app.agents.flow import FlowAgent
 # Routers
 from app.api.routes.chat_router import router as chat_router
 from app.api.routes.documents_router import router as documents_router
@@ -52,20 +55,24 @@ def create() -> FastAPI:
         """
         logger.info("Iniciando la aplicación Posgrado Backend...")
         setup()
-        logger.info("[LIFESPAN] Logger configurado.")
+        logger.debug("[LIFESPAN] Logger configurado.")
         configure_embedding()
-        logger.info("[LIFESPAN] Embeddings configurados.")
-        agent = get_flow_agent()
-        logger.info("[LIFESPAN] Inicializando agente...")
-        await agent.initialize()
-        logger.info("[LIFESPAN] Agente inicializado.")
+        logger.debug("[LIFESPAN] Embeddings configurados.")
+        pool, saver, store = await init_postgres_memory()
+        logger.debug("[LIFESPAN] Inicializando agente...")
+        agent = FlowAgent()
+        await agent.initialize(saver, store)
+        logger.debug("[LIFESPAN] Agente inicializado.")
+        app.state.pool = pool
+        app.state.flow_agent = agent
         async with engine.begin() as conn:
             await conn.execute(text("SELECT 1"))
-        logger.info("[LIFESPAN] Conexión a la base de datos verificada.")
-        
+        logger.debug("[LIFESPAN] Conexión a la base de datos verificada.")
+
         logger.info("Configuración establecida exitosamente.")
         yield
         await engine.dispose()
+        await app.state.pool.close()
         logger.info("Cerrando la aplicación Posgrado Backend...")
 
     app = FastAPI(title=settings.PROJECT_NAME, version="1.0.0", lifespan=lifespan)

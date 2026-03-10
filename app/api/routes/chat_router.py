@@ -2,7 +2,7 @@
 
 from typing import Annotated
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Request
 
 from sqlmodel.ext.asyncio.session import AsyncSession
 
@@ -21,11 +21,13 @@ from app.services.chat_service import ChatService
 from app.agents.flow import FlowAgent
 
 # Dependency to get the flow agent
-from app.api.dependencies.dep_chat import get_flow_agent
-
 from app.api.dependencies.dep_auth import get_current_user
 
 router = APIRouter()
+
+async def get_flow_agent(request: Request) -> FlowAgent:
+    """Dependencia para obtener una instancia del FlowAgent."""
+    return request.app.state.flow_agent
 
 FlowAgentDep = Annotated[FlowAgent, Depends(get_flow_agent)]
 UserDep = Annotated[User, Depends(get_current_user)]

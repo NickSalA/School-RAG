@@ -1,10 +1,15 @@
 """Adaptador para OpenAI."""
 
+from pydantic import SecretStr
+
+from langchain_openai import OpenAIEmbeddings
+
 from llama_index.embeddings.openai import OpenAIEmbedding
 
 from llama_index.core import Settings
 
 from app.core.config import settings
+
 from app.exceptions.cloud import GenerativeAIModelError
 
 def configure_embedding() -> None:
@@ -22,3 +27,20 @@ def configure_embedding() -> None:
         )
     except Exception as e:
         raise GenerativeAIModelError(f"Error al configurar modelo de embeddings OpenAI: {e}") from e
+
+def get_embedding() -> OpenAIEmbeddings:
+    """Obtiene una instancia de OpenAIEmbeddings.
+    
+    Returns:
+        OpenAIEmbeddings: Instancia del modelo de embeddings.
+    
+    Raises:
+        GenerativeAIModelError: Si hay error al inicializar el modelo de embeddings.
+    """
+    try:
+        return OpenAIEmbeddings(
+            model=settings.OPENAI_EMBEDDING_MODEL_NAME,
+            api_key=SecretStr(settings.OPENAI_API)
+        )
+    except Exception as e:
+        raise GenerativeAIModelError(f"Error al inicializar modelo de embeddings OpenAI: {e}") from e

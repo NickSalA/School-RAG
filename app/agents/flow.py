@@ -3,9 +3,13 @@
 Este módulo implementa el FlowAgent, un asistente especializado en ayudar a estudiantes a encontrar soluciones normativas para evitar la deserción universitaria.
 """
 
+from re import ASCII
 from loguru import logger
 
 from langchain.agents.middleware import ModelFallbackMiddleware
+
+from langgraph.checkpoint.postgres.aio import AsyncPostgresSaver
+from langgraph.store.postgres.aio import AsyncPostgresStore
 
 # Importa el wrapper base del agente
 from app.agents.base import BaseAgent
@@ -19,8 +23,6 @@ from app.agents.tools.retriever_tool import bc_tool
 from app.agents.tools.feedback_tool import get_feedback_tool
 from app.agents.tools.learning_tools import tool_personal_pref, tool_suggest_technical_fix
 
-# Importa el checkpointer para la memoria
-from app.agents.checkpointer import get_checkpointer, init_postgres_memory, get_store
 from app.core.config import settings
 
 from app.exceptions.cloud import AgentNotInitializedError
@@ -30,15 +32,10 @@ class FlowAgent:
         self.llm = None
         self.agent_flow = None
 
-    async def initialize(self):
+    async def initialize(self, saver: AsyncPostgresSaver ,store: AsyncPostgresStore):
         """Inicializa el agente creando su flujo con las herramientas necesarias."""
         if self.agent_flow is not None:
             return
-
-        logger.debug("[FlowAgent] Inicializando memoria PostgreSQL...")
-        # Inicializamos la memoria PostgreSQL asíncronamente
-        await init_postgres_memory()
-        logger.debug("[FlowAgent] Memoria PostgreSQL inicializada.")
 
         logger.debug("[FlowAgent] Creando LLM primario (Gemini)...")
         primary_llm = get_llm()
@@ -58,8 +55,8 @@ class FlowAgent:
                 llm=primary_llm,
                 middlewares= [ModelFallbackMiddleware(secondary_llm)],
                 tools = [bc_tool_instance, get_feedback_tool, tool_personal_pref, tool_suggest_technical_fix],
-                memory=get_checkpointer(),
-                store=get_store(),
+                memory=saver,
+                store=store,
             )
             logger.debug("[FlowAgent] BaseAgent construido exitosamente.")
         except Exception as e:

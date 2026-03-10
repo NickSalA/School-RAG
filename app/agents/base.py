@@ -14,14 +14,14 @@ from app.agents.executor import execute
 class BaseAgent:
     def __init__(self,
         llm: BaseChatModel,
-        middlewares,
+        middlewares: list | None = None,
         tools: list | None = None,
         memory=None,
         store=None,
     ):
         self.store = store
 
-        self.agent = create_agent(model=llm, tools=tools or [], checkpointer=memory, store=store, middleware=middlewares)
+        self.agent = create_agent(model=llm, tools=tools or [], checkpointer=memory, store=store, middleware=middlewares or [])
         logger.debug("[BaseAgent] create_agent completado.")
 
     def get_store(self):
