@@ -15,7 +15,7 @@ from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 
 # Configuración del sistema
-from app.agents.checkpointer import close_postgres_memory, init_postgres_memory
+from app.agents.checkpointer import init_postgres_memory
 
 from app.core.config import settings
 

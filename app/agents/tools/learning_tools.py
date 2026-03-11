@@ -17,7 +17,7 @@ async def tool_personal_pref(preference: str, config: RunnableConfig) -> str:
     if not store:
         return "Error: Store (Memoria semántica) no disponible."
 
-    user_id = config.get("configurable", {}).get("user_id")
+    user_id = config.get("configurable", {}).get("checkpoint_ns")
     if not user_id:
         return "Error: Usuario no identificado."
 
@@ -44,7 +44,7 @@ async def tool_suggest_technical_fix(correction: str, config: RunnableConfig) ->
     if not store:
         return "Error: Store (Memoria semántica) no disponible."
 
-    user_id = config.get("configurable", {}).get("user_id")
+    user_id = config.get("configurable", {}).get("checkpoint_ns")
     if not user_id:
         return "Error: Usuario no identificado."
 

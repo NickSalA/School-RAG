@@ -3,7 +3,6 @@
 Este módulo implementa el FlowAgent, un asistente especializado en ayudar a estudiantes a encontrar soluciones normativas para evitar la deserción universitaria.
 """
 
-from re import ASCII
 from loguru import logger
 
 from langchain.agents.middleware import ModelFallbackMiddleware
