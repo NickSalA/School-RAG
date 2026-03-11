@@ -1,12 +1,15 @@
 """Gestión del estado/memoria de conversaciones del agente."""
 
-from langgraph.store.postgres.base import PostgresIndexConfig
 from loguru import logger
+
 from psycopg import AsyncConnection
 from psycopg.rows import DictRow, dict_row
 from psycopg_pool import AsyncConnectionPool
+
+from langgraph.store.postgres.base import PostgresIndexConfig
 from langgraph.checkpoint.postgres.aio import AsyncPostgresSaver
 from langgraph.store.postgres.aio import AsyncPostgresStore
+
 from app.adapters.openai import get_embedding
 from app.core.config import settings
 

@@ -30,6 +30,11 @@ class ConversationService:
         conversations = await self.conversation.get_all()
         return [ConversationList.model_validate(conv) for conv in conversations]
 
+    async def list_by_user(self, user_id: int) -> list[ConversationList]:
+        """Lista las conversaciones de un usuario ordenadas por fecha descendente."""
+        conversations = await self.conversation.get_by_user(user_id)
+        return [ConversationList.model_validate(conv) for conv in conversations]
+
     async def update_messages(self, conversation_id: int, formatted_messages: list[dict]) -> ConversationRead:
         """Actualiza los mensajes de una conversación existente."""
         updated_conversation = await self.conversation.update_messages(conversation_id, formatted_messages)

@@ -12,6 +12,7 @@ class Conversation(SQLModel, table=True):
     __table_args__ = {"schema": "school_rag"}
 
     id: int = Field(default=None, sa_column=Column("id", Integer, primary_key=True, autoincrement=True))
+    user_id: int = Field(default=None, sa_column=Column("user_id", Integer, ForeignKey("school_rag.user.id"), nullable=False))
     prompt_id: int = Field(default=None, sa_column=Column("prompt_id", Integer, ForeignKey("school_rag.system_prompt.id"),nullable=False))
     content: list[dict[str, Any]] = Field(default_factory=list, sa_column=Column("content", JSONB, nullable=False))
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc), sa_column=Column("created_at", DateTime(timezone=True), nullable=False))

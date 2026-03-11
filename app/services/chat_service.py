@@ -22,7 +22,7 @@ class ChatService:
         system_prompt = format_prompt(prompt.system_message)
 
         if not chat.conversation_id:
-            conversation_obj = ConversationCreate(content=[], prompt_id=prompt.id)
+            conversation_obj = ConversationCreate(content=[], prompt_id=prompt.id, user_id=user.id)
             new_conversation = await self.conversation_service.create(conversation_obj)
             chat.conversation_id = new_conversation.id
 
@@ -40,20 +40,20 @@ class ChatService:
             store = self.agent.agent_flow.get_store()
             if store:
                 memories = []
-                
+
                 # 1. Reglas Globales (Aprobadas por quorum)
                 global_results = await store.asearch(("global", "verified"), query=chat.message, limit=2)
                 for r in global_results:
                     if "rule" in r.value:
                         memories.append(f"- REGLA DEL SISTEMA: {r.value['rule']}")
-                        
+
                 # 2. Preferencias del Usuario (Personalización)
                 if user.id:
                     user_results = await store.asearch(("users", str(user.id), "prefs"), query=chat.message, limit=2)
                     for r in user_results:
                         if "preference" in r.value:
                             memories.append(f"- PREFERENCIA DE {user.id}: {r.value['preference']}")
-                        
+
                 if memories:
                     store_context = (
                         "\\n[REGLAS ACTUALIZADAS Y PREFERENCIAS (STORE)]\\n"
