@@ -23,13 +23,13 @@ async def get_retriever(collection_name: str) -> LlamaIndexWindowRetriever:
         VectorStoreCollectionNotFoundError: Si la colección no existe.
     """
     try:
-        logger.info("[Retriever] Conectando a Qdrant...")
+        logger.debug("[Retriever] Conectando a Qdrant...")
         client = await connect_async_vectorial_client()
-        logger.info("[Retriever] Obteniendo vector store...")
+        logger.debug("[Retriever] Obteniendo vector store...")
         vector_store = await get_async_vector_store(client, collection_name)
-        logger.info("[Retriever] Creando índice VectorStoreIndex...")
+        logger.debug("[Retriever] Creando índice VectorStoreIndex...")
         index = VectorStoreIndex.from_vector_store(vector_store)
-        logger.info("[Retriever] Retriever listo.")
+        logger.debug("[Retriever] Retriever listo.")
         return LlamaIndexWindowRetriever(index=index, top_k=5)
     except Exception as e:
         # Re-raise si ya es una excepción personalizada
