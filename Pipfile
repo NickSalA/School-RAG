@@ -33,6 +33,7 @@ pyjwt = "*"
 aiofiles = "*"
 langchain-groq = "*"
 sqlalchemy = {exc = "*"}
+psycopg = {extras = ["binary", "pool"], version = ">=3.1.18"}
 
 [dev-packages]
 pytest = "*"
