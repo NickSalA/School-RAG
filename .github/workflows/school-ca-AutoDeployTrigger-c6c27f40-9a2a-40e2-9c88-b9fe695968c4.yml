@@ -1,0 +1,49 @@
+name: Trigger auto deployment for school-ca
+
+# When this action will be executed
+on:
+  # Automatically trigger it when detected changes in repo
+  push:
+    branches: 
+      [ main ]
+    paths:
+    - '**'
+    - '.github/workflows/school-ca-AutoDeployTrigger-c6c27f40-9a2a-40e2-9c88-b9fe695968c4.yml'
+
+  # Allow manual trigger 
+  workflow_dispatch:      
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    permissions: 
+      id-token: write #This is required for requesting the OIDC JWT Token
+      contents: read #Required when GH token is used to authenticate with private repo
+
+    steps:
+      - name: Checkout to the branch
+        uses: actions/checkout@v2
+
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.SCHOOLCA_AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.SCHOOLCA_AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.SCHOOLCA_AZURE_SUBSCRIPTION_ID }}
+
+      - name: Build and push container image to registry
+        uses: azure/container-apps-deploy-action@v2
+        with:
+          appSourcePath: ${{ github.workspace }}
+          _dockerfilePathKey_: _dockerfilePath_
+          _targetLabelKey_: _targetLabel_
+          registryUrl: containerregistrylumin.azurecr.io
+          registryUsername: ${{ secrets.SCHOOLCA_REGISTRY_USERNAME }}
+          registryPassword: ${{ secrets.SCHOOLCA_REGISTRY_PASSWORD }}
+          containerAppName: school-ca
+          resourceGroup: school-rag
+          imageToBuild: containerregistrylumin.azurecr.io/school-ca:${{ github.sha }}
+          _buildArgumentsKey_: |
+            _buildArgumentsValues_
+
+
