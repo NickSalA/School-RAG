@@ -19,7 +19,14 @@ class UserRepository(BaseRepository[User, UserCreate, UserUpdate]):
         hashed_password = get_password_hash(obj_in.password)
         obj_in.password = hashed_password
 
-        return await super().create(obj_in)
+        return await super().create(obj_in = obj_in)
+
+    async def update(self, db_obj: User, obj_in: UserUpdate) -> User:
+        """Actualiza un usuario encriptando su contraseña antes de guardar."""
+        if obj_in.password:
+            obj_in.password = get_password_hash(obj_in.password)
+
+        return await super().update(db_obj = db_obj, obj_in = obj_in)
 
     async def get_by_email(self, email: str) -> User | None:
         """Busca un usuario por su correo electrónico (útil para el Login)."""

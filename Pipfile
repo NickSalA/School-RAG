@@ -34,6 +34,7 @@ aiofiles = "*"
 langchain-groq = "*"
 sqlalchemy = {exc = "*"}
 psycopg = {extras = ["binary", "pool"], version = ">=3.1.18"}
+win32-setctime = "*"
 
 [dev-packages]
 pytest = "*"
