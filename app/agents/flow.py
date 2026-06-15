@@ -20,18 +20,24 @@ from app.adapters.groq import get_secondary_llm
 # Importa la herramienta para buscar en la base de conocimientos
 from app.agents.tools.retriever_tool import bc_tool
 from app.agents.tools.feedback_tool import get_feedback_tool
-from app.agents.tools.learning_tools import tool_personal_pref, tool_suggest_technical_fix
+from app.agents.tools.learning_tools import (
+    tool_personal_pref,
+    tool_suggest_technical_fix,
+)
 
 from app.core.config import settings
 
 from app.exceptions.cloud import AgentNotInitializedError
+
 
 class FlowAgent:
     def __init__(self):
         self.llm = None
         self.agent_flow = None
 
-    async def initialize(self, saver: AsyncPostgresSaver ,store: AsyncPostgresStore):
+    async def initialize(
+        self, saver: AsyncPostgresSaver | None, store: AsyncPostgresStore | None
+    ):
         """Inicializa el agente creando su flujo con las herramientas necesarias."""
         if self.agent_flow is not None:
             return
@@ -52,18 +58,31 @@ class FlowAgent:
         try:
             self.agent_flow = BaseAgent(
                 llm=primary_llm,
-                middlewares= [ModelFallbackMiddleware(secondary_llm)],
-                tools = [bc_tool_instance, get_feedback_tool, tool_personal_pref, tool_suggest_technical_fix],
+                middlewares=[ModelFallbackMiddleware(secondary_llm)],
+                tools=[
+                    bc_tool_instance,
+                    get_feedback_tool,
+                    tool_personal_pref,
+                    tool_suggest_technical_fix,
+                ],
                 memory=saver,
                 store=store,
             )
             logger.debug("[FlowAgent] BaseAgent construido exitosamente.")
         except Exception as e:
-            raise AgentNotInitializedError(f"Error al inicializar el agente: {e}") from e
+            raise AgentNotInitializedError(
+                f"Error al inicializar el agente: {e}"
+            ) from e
 
-    async def answer_message(self, message: str, system_prompt: str, conversation_id: int, checkpoint_ns: int) -> str:
+    async def answer_message(
+        self, message: str, system_prompt: str, conversation_id: int, checkpoint_ns: int
+    ) -> str:
         """Respuesta del agente"""
         if self.agent_flow is None:
-            raise AgentNotInitializedError("El agente no ha sido inicializado. Llama a initialize() antes de usarlo.")
+            raise AgentNotInitializedError(
+                "El agente no ha sido inicializado. Llama a initialize() antes de usarlo."
+            )
 
-        return await self.agent_flow.answer(message, system_prompt, conversation_id, checkpoint_ns)
+        return await self.agent_flow.answer(
+            message, system_prompt, conversation_id, checkpoint_ns
+        )

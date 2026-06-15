@@ -1,28 +1,48 @@
 """Router para la gestión de prompts."""
 
+from typing import Annotated
+
 from fastapi import APIRouter, Depends
 from sqlmodel.ext.asyncio.session import AsyncSession
+
+from app.models import Role, User
+from app.api.dependencies.dep_auth import get_current_user, require_roles
 from app.schemas.prompt_schema import PromptCreate, PromptRead, PromptUpdate
 from app.services.prompt_service import PromptService
 from app.core.database import get_session
-from app.api.dependencies.dep_auth import get_current_user
 
 router = APIRouter()
 
+SessionDep = Annotated[AsyncSession, Depends(get_session)]
+CurrentUserDep = Annotated[User, Depends(get_current_user)]
+AdminUserDep = Annotated[User, Depends(require_roles(Role.ADMIN, Role.SUPERADMIN))]
+
+
 @router.post("/", response_model=PromptRead)
-async def create(prompt_in: PromptCreate, session: AsyncSession = Depends(get_session), current_user=Depends(get_current_user)):
+async def create(
+    prompt_in: PromptCreate,
+    session: SessionDep,
+    current_user: AdminUserDep,
+):
     """Endpoint para crear un nuevo prompt."""
     service = PromptService(session)
     return await service.create(prompt_in, current_user.id)
 
+
 @router.get("/active", response_model=PromptRead)
-async def get_active(session: AsyncSession = Depends(get_session)):
+async def get_active(session: SessionDep, current_user: CurrentUserDep):
     """Endpoint para obtener el prompt activo."""
     service = PromptService(session)
     return await service.get_active_prompt()
 
+
 @router.patch("/{prompt_id}", response_model=PromptRead)
-async def update(prompt_id: int, prompt_in: PromptUpdate, session: AsyncSession = Depends(get_session), current_user=Depends(get_current_user)):
+async def update(
+    prompt_id: int,
+    prompt_in: PromptUpdate,
+    session: SessionDep,
+    current_user: AdminUserDep,
+):
     """Endpoint para actualizar un prompt existente."""
     service = PromptService(session)
     return await service.update(prompt_id, prompt_in, current_user.id)

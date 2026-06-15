@@ -1,20 +1,31 @@
 """Utilidades de seguridad: JWT y Hashing de contraseñas."""
 
 from datetime import datetime, timedelta, timezone
+
 import bcrypt
 import jwt
+from loguru import logger
 
 from app.core.config import settings
 
+
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     """Verifica si la contraseña plana coincide con el hash guardado."""
-    return bcrypt.checkpw(plain_password.encode('utf-8'), hashed_password.encode('utf-8'))
+    try:
+        return bcrypt.checkpw(
+            plain_password.encode("utf-8"), hashed_password.encode("utf-8")
+        )
+    except ValueError:
+        logger.warning("Se detectó un hash de contraseña inválido durante login.")
+        return False
+
 
 def get_password_hash(password: str) -> str:
     """Genera un hash bcrypt a partir de una contraseña plana."""
     salt = bcrypt.gensalt()
-    hashed_password = bcrypt.hashpw(password.encode('utf-8'), salt)
-    return hashed_password.decode('utf-8')
+    hashed_password = bcrypt.hashpw(password.encode("utf-8"), salt)
+    return hashed_password.decode("utf-8")
+
 
 def create_access_token(data: dict, expires_delta: timedelta | None = None) -> str:
     """Crea un token JWT de acceso."""
@@ -22,7 +33,11 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None) -> s
     if expires_delta:
         expire = datetime.now(timezone.utc) + expires_delta
     else:
-        expire = datetime.now(timezone.utc) + timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+        expire = datetime.now(timezone.utc) + timedelta(
+            minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES
+        )
     to_encode.update({"exp": expire})
-    encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
+    encoded_jwt = jwt.encode(
+        to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM
+    )
     return encoded_jwt

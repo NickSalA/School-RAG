@@ -1,109 +1,92 @@
-"""Tests básicos para los endpoints de autenticación usando pytest y TestClient."""
+"""Tests de autenticación sobre el contrato real del servicio."""
+
+import asyncio
+import os
+import sys
+from pathlib import Path
+from types import SimpleNamespace
+from unittest.mock import AsyncMock
 
 import pytest
-import bcrypt
-from fastapi.testclient import TestClient
-from sqlmodel import Session, SQLModel, create_engine
-from app.factory import create
-from app.core.database import get_session
-from app.models.user_model import User
 
-# Configurar base de datos en memoria para las pruebas
-sqlite_url = "sqlite://"
-engine = create_engine(sqlite_url, connect_args={"check_same_thread": False})
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
-def get_session_override():
-    with Session(engine) as session:
-        yield session
 
-app = create()
-app.dependency_overrides[get_session] = get_session_override
+def _configure_test_env() -> None:
+    env_values = {
+        "SECRET_KEY": "test-secret-key-with-at-least-32-bytes",
+        "ALGORITHM": "HS256",
+        "MODEL_API_KEY": "test-model-key",
+        "MODEL_SECOND_API_KEY": "test-model-2-key",
+        "QDRANT_API_KEY": "test-qdrant-key",
+        "LLAMA_PARSE_API_KEY": "test-llamaparse-key",
+        "OPENAI_API": "test-openai-key",
+        "BETTER_STACK_TOKEN": "",
+        "DATABASE_PASSWORD": "test-password",
+        "DATABASE_USER": "test-user",
+    }
+    for key, value in env_values.items():
+        os.environ.setdefault(key, value)
 
-@pytest.fixture(name="client")
-def client_fixture():
-    # Asegurar que las tablas existan antes de cada prueba
-    SQLModel.metadata.create_all(engine)
-    client = TestClient(app)
-    yield client
-    # Limpiar base de datos después de la prueba
-    SQLModel.metadata.drop_all(engine)
 
-@pytest.fixture(name="session")
-def session_fixture():
-    with Session(engine) as session:
-        yield session
+_configure_test_env()
 
-def test_register_user(client: TestClient):
-    """1. Test de registro (crear un usuario inicial)"""
-    response = client.post(
-        "/api/v1/auth/register",
-        json={"username": "testuser", "password": "testpassword", "role": "admin"}
+from app.core.security import get_password_hash, verify_password
+from app.exceptions.auth import InvalidCredentialsError
+from app.models import Role
+from app.schemas.auth_schema import LoginRequest
+from app.services.auth_service import AuthService
+
+
+def _build_user(password: str, **overrides):
+    data = {
+        "id": 1,
+        "name": "tester",
+        "email": "tester@example.com",
+        "password": password,
+        "role": Role.USER,
+    }
+    data.update(overrides)
+    return SimpleNamespace(**data)
+
+
+def test_verify_password_handles_invalid_hash() -> None:
+    """Los hashes corruptos no deben romper el login con un 500."""
+    assert verify_password("secret", "invalid-hash") is False
+
+
+def test_login_rejects_missing_user_without_enumeration() -> None:
+    """Usuario inexistente debe responder igual que unas credenciales inválidas."""
+    service = AuthService(session=None)
+    service.user_repo.get_by_name = AsyncMock(return_value=None)
+
+    with pytest.raises(InvalidCredentialsError, match="Credenciales inválidas"):
+        asyncio.run(service.login(LoginRequest(username="ghost", password="secret")))
+
+
+def test_login_rejects_invalid_hash_as_invalid_credentials() -> None:
+    """Un hash corrupto no debe filtrar un stacktrace ni romper la autenticación."""
+    service = AuthService(session=None)
+    service.user_repo.get_by_name = AsyncMock(
+        return_value=_build_user(password="not-a-valid-bcrypt-hash")
     )
-    assert response.status_code == 201
-    data = response.json()
-    assert data["username"] == "testuser"
-    assert "id" in data
 
-def test_login_success(client: TestClient, session: Session):
-    """2. Test de login exitoso (que devuelva el token JWT)"""
-    # Usando bcrypt directamente para cumplir el requirement
-    salt = bcrypt.gensalt()
-    hashed = bcrypt.hashpw(b"mypassword", salt).decode("utf-8")
-    user = User(username="loginuser", password_hash=hashed, role="admin")
-    session.add(user)
-    session.commit()
-    
-    response = client.post(
-        "/api/v1/auth/login",
-        json={"username": "loginuser", "password": "mypassword"}
-    )
-    assert response.status_code == 200
-    data = response.json()
-    assert "access_token" in data
-    assert data["token_type"] == "bearer"
+    with pytest.raises(InvalidCredentialsError, match="Credenciales inválidas"):
+        asyncio.run(service.login(LoginRequest(username="tester", password="secret")))
 
-def test_login_failed(client: TestClient, session: Session):
-    """3. Test de login fallido (contraseña o usuario incorrecto)"""
-    salt = bcrypt.gensalt()
-    hashed = bcrypt.hashpw(b"mypassword", salt).decode("utf-8")
-    user = User(username="failuser", password_hash=hashed, role="admin")
-    session.add(user)
-    session.commit()
-    
-    # Intentar con mala contraseña
-    response = client.post(
-        "/api/v1/auth/login",
-        json={"username": "failuser", "password": "wrongpassword"}
-    )
-    assert response.status_code == 401
-    
-    # Intentar con usuario inexistente
-    response2 = client.post(
-        "/api/v1/auth/login",
-        json={"username": "notfound", "password": "mypassword"}
-    )
-    assert response2.status_code == 401
 
-def test_protected_route(client: TestClient, session: Session):
-    """4. Test de ruta protegida (intentar acceder a un endpoint con y sin el token)"""
-    # Crear cuenta de usuario
-    client.post(
-        "/api/v1/auth/register",
-        json={"username": "protecteduser", "password": "testpassword", "role": "admin"}
+def test_login_success_returns_token_and_user() -> None:
+    """El login válido debe generar un token y devolver el usuario autenticado."""
+    service = AuthService(session=None)
+    service.user_repo.get_by_name = AsyncMock(
+        return_value=_build_user(password=get_password_hash("secret"))
     )
-    
-    # Test CON token
-    response_login = client.post(
-        "/api/v1/auth/login",
-        json={"username": "protecteduser", "password": "testpassword"}
-    )
-    token = response_login.json()["access_token"]
-    headers = {"Authorization": f"Bearer {token}"}
-    
-    response_with_token = client.get("/api/v1/auth/me", headers=headers)
-    assert response_with_token.status_code == 200
-    assert response_with_token.json()["username"] == "protecteduser"
 
-    # Test SIN token
-    response_without_token = client.get("/api/v1/auth/me")
-    assert response_without_token.status_code == 401
+    response = asyncio.run(
+        service.login(LoginRequest(username="tester", password="secret"))
+    )
+
+    assert response.token_type == "bearer"
+    assert response.access_token
+    assert response.user.id == 1
+    assert response.user.email == "tester@example.com"

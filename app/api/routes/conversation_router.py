@@ -1,5 +1,7 @@
 """Router para la gestión de conversaciones."""
 
+from typing import Annotated
+
 from fastapi import APIRouter, Depends
 from sqlmodel.ext.asyncio.session import AsyncSession
 
@@ -11,10 +13,14 @@ from app.models import User
 
 router = APIRouter()
 
+SessionDep = Annotated[AsyncSession, Depends(get_session)]
+CurrentUserDep = Annotated[User, Depends(get_current_user)]
+
+
 @router.get("/me", response_model=list[ConversationList])
 async def get_my_conversations(
-    session: AsyncSession = Depends(get_session),
-    current_user: User = Depends(get_current_user),
+    session: SessionDep,
+    current_user: CurrentUserDep,
 ):
     """Lista las conversaciones del usuario autenticado ordenadas por fecha descendente."""
     service = ConversationService(session)
@@ -24,8 +30,9 @@ async def get_my_conversations(
 @router.get("/{conversation_id}", response_model=ConversationRead)
 async def get(
     conversation_id: int,
-    session: AsyncSession = Depends(get_session),
+    session: SessionDep,
+    current_user: CurrentUserDep,
 ):
     """Endpoint para obtener una conversación por su ID."""
     service = ConversationService(session)
-    return await service.get(conversation_id)
+    return await service.get_for_user(conversation_id, current_user.id)

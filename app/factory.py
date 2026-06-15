@@ -35,6 +35,7 @@ from app.core.database import engine
 from app.api.dependencies.dep_auth import get_current_user
 
 from app.agents.flow import FlowAgent
+
 # Routers
 from app.api.routes.chat_router import router as chat_router
 from app.api.routes.documents_router import router as documents_router
@@ -44,6 +45,7 @@ from app.api.routes.prompt_router import router as prompt_router
 from app.api.routes.conversation_router import router as conversation_router
 from app.api.routes.feedback_router import router as feedback_router
 from app.api.routes.log_router import router as log_router
+
 
 def create() -> FastAPI:
     """Crea y configura la aplicación FastAPI."""
@@ -58,12 +60,20 @@ def create() -> FastAPI:
         logger.debug("[LIFESPAN] Logger configurado.")
         configure_embedding()
         logger.debug("[LIFESPAN] Embeddings configurados.")
-        pool, saver, store = await init_postgres_memory()
+        pool = None
+        saver = None
+        store = None
+        if settings.CONN_STRING:
+            pool, saver, store = await init_postgres_memory()
+            app.state.pool = pool
+        else:
+            logger.warning(
+                "[LIFESPAN] Memoria persistente del agente deshabilitada: DATABASE_HOST no configurado."
+            )
         logger.debug("[LIFESPAN] Inicializando agente...")
         agent = FlowAgent()
         await agent.initialize(saver, store)
         logger.debug("[LIFESPAN] Agente inicializado.")
-        app.state.pool = pool
         app.state.flow_agent = agent
         async with engine.begin() as conn:
             await conn.execute(text("SELECT 1"))
@@ -72,24 +82,53 @@ def create() -> FastAPI:
         logger.info("Configuración establecida exitosamente.")
         yield
         await engine.dispose()
-        await app.state.pool.close()
+        if getattr(app.state, "pool", None) is not None:
+            await app.state.pool.close()
         logger.info("Cerrando la aplicación Posgrado Backend...")
 
     app = FastAPI(title=settings.PROJECT_NAME, version="1.0.0", lifespan=lifespan)
 
     app.include_router(chat_router, prefix=settings.GLOBAL_PREFIX, tags=["Chat"])
-    app.include_router(documents_router, prefix=f"{settings.GLOBAL_PREFIX}/documents", tags=["Documentos"])
-    app.include_router(auth_router, prefix=f"{settings.GLOBAL_PREFIX}/auth", tags=["Autenticación"])
-    app.include_router(user_router, prefix=f"{settings.GLOBAL_PREFIX}/users", tags=["Usuarios"], dependencies=[Depends(get_current_user)])
-    app.include_router(prompt_router, prefix=f"{settings.GLOBAL_PREFIX}/prompts", tags=["Prompts"])
-    app.include_router(conversation_router, prefix=f"{settings.GLOBAL_PREFIX}/conversations", tags=["Conversaciones"], dependencies=[Depends(get_current_user)])
-    app.include_router(feedback_router, prefix=f"{settings.GLOBAL_PREFIX}/feedbacks", tags=["Feedbacks"], dependencies=[Depends(get_current_user)])
-    app.include_router(log_router, prefix=f"{settings.GLOBAL_PREFIX}/logs", tags=["Logs"], dependencies=[Depends(get_current_user)])
+    app.include_router(
+        documents_router,
+        prefix=f"{settings.GLOBAL_PREFIX}/documents",
+        tags=["Documentos"],
+    )
+    app.include_router(
+        auth_router, prefix=f"{settings.GLOBAL_PREFIX}/auth", tags=["Autenticación"]
+    )
+    app.include_router(
+        user_router,
+        prefix=f"{settings.GLOBAL_PREFIX}/users",
+        tags=["Usuarios"],
+        dependencies=[Depends(get_current_user)],
+    )
+    app.include_router(
+        prompt_router, prefix=f"{settings.GLOBAL_PREFIX}/prompts", tags=["Prompts"]
+    )
+    app.include_router(
+        conversation_router,
+        prefix=f"{settings.GLOBAL_PREFIX}/conversations",
+        tags=["Conversaciones"],
+        dependencies=[Depends(get_current_user)],
+    )
+    app.include_router(
+        feedback_router,
+        prefix=f"{settings.GLOBAL_PREFIX}/feedbacks",
+        tags=["Feedbacks"],
+        dependencies=[Depends(get_current_user)],
+    )
+    app.include_router(
+        log_router,
+        prefix=f"{settings.GLOBAL_PREFIX}/logs",
+        tags=["Logs"],
+        dependencies=[Depends(get_current_user)],
+    )
 
     # CORS (ajusta origins a tu front real)
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=settings.CORS_ORIGINS,
+        allow_origins=[origin.rstrip("/") for origin in settings.CORS_ORIGINS],
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
@@ -119,13 +158,16 @@ def create() -> FastAPI:
         return JSONResponse(
             status_code=status_code,
             content={
-                "error": True, 
-                "type": exc.__class__.__name__, 
-                "message": str(exc)},
+                "error": True,
+                "type": exc.__class__.__name__,
+                "message": str(exc),
+            },
         )
 
     @app.exception_handler(Exception)
-    async def global_exception_handler(request: Request, exc: Exception) -> JSONResponse:
+    async def global_exception_handler(
+        request: Request, exc: Exception
+    ) -> JSONResponse:
         """
         Gestor global para excepciones no manejadas. Evita exponer detalles internos.
         Args:

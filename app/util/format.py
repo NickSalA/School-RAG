@@ -2,6 +2,7 @@
 
 from app.schemas.prompt_schema import PromptStructure
 
+
 def format_prompt(obj: list[PromptStructure]) -> str:
     """Formatea una lista de diccionarios como texto legible."""
     if not isinstance(obj, list):
@@ -9,11 +10,16 @@ def format_prompt(obj: list[PromptStructure]) -> str:
 
     formatted_lines = []
     for item in obj:
-        if isinstance(item, dict):
-            formatted_lines.extend(f"{key.upper()}: {value}" for key, value in item.items())
+        if isinstance(item, PromptStructure):
+            formatted_lines.append(f"{item.section.upper()}: {item.content.strip()}")
+        elif isinstance(item, dict):
+            formatted_lines.extend(
+                f"{key.upper()}: {value}" for key, value in item.items()
+            )
         else:
             formatted_lines.append(str(item))
     return "\n\n".join(formatted_lines)
+
 
 def format_message(user: str, agent: str) -> list[dict]:
     """Formatea una conversación de mensajes en una lista de diccionarios con roles."""

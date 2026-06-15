@@ -22,7 +22,20 @@ class ConversationService:
         """Obtiene una conversación por su ID."""
         conversation = await self.conversation.get(conversation_id)
         if conversation is None:
-            raise NotFoundException(f"Conversación con ID {conversation_id} no encontrada")
+            raise NotFoundException(
+                f"Conversación con ID {conversation_id} no encontrada"
+            )
+        return ConversationRead.model_validate(conversation)
+
+    async def get_for_user(
+        self, conversation_id: int, user_id: int
+    ) -> ConversationRead:
+        """Obtiene una conversación solo si pertenece al usuario indicado."""
+        conversation = await self.conversation.get(conversation_id)
+        if conversation is None or conversation.user_id != user_id:
+            raise NotFoundException(
+                f"Conversación con ID {conversation_id} no encontrada"
+            )
         return ConversationRead.model_validate(conversation)
 
     async def list_conversations(self) -> list[ConversationList]:
@@ -35,9 +48,15 @@ class ConversationService:
         conversations = await self.conversation.get_by_user(user_id)
         return [ConversationList.model_validate(conv) for conv in conversations]
 
-    async def update_messages(self, conversation_id: int, formatted_messages: list[dict]) -> ConversationRead:
+    async def update_messages(
+        self, conversation_id: int, formatted_messages: list[dict]
+    ) -> ConversationRead:
         """Actualiza los mensajes de una conversación existente."""
-        updated_conversation = await self.conversation.update_messages(conversation_id, formatted_messages)
+        updated_conversation = await self.conversation.update_messages(
+            conversation_id, formatted_messages
+        )
         if updated_conversation is None:
-            raise NotFoundException(f"Conversación con ID {conversation_id} no encontrada")
+            raise NotFoundException(
+                f"Conversación con ID {conversation_id} no encontrada"
+            )
         return ConversationRead.model_validate(updated_conversation)

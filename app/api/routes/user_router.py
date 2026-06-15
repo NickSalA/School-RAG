@@ -15,33 +15,42 @@ router = APIRouter()
 SessionDep = Annotated[AsyncSession, Depends(get_session)]
 CurrentUserDep = Annotated[User, Depends(get_current_user)]
 
+
 @router.post("/", response_model=UserRead)
-async def create(user_in: UserCreate, session: SessionDep, current_user: CurrentUserDep):
+async def create(
+    user_in: UserCreate, session: SessionDep, current_user: CurrentUserDep
+):
     """Endpoint para crear un nuevo usuario."""
     service = UserService(session)
-    return await service.create(user_in, current_user.id)
+    return await service.create(user_in, current_user)
+
 
 @router.get("/{user_id}", response_model=UserRead)
-async def get(user_id: int, session: SessionDep):
+async def get(user_id: int, session: SessionDep, current_user: CurrentUserDep):
     """Endpoint para obtener un usuario por su ID."""
 
     service = UserService(session)
-    return await service.get(user_id)
+    return await service.get(user_id, current_user)
+
 
 @router.get("/", response_model=list[UserRead])
-async def get_all(session: AsyncSession = Depends(get_session)):
+async def get_all(session: SessionDep, current_user: CurrentUserDep):
     """Endpoint para listar todos los usuarios."""
     service = UserService(session)
-    return await service.list_users()
+    return await service.list_users(current_user)
+
 
 @router.patch("/{user_id}", response_model=UserRead)
-async def update(user_id: int, user_in: UserUpdate, session: SessionDep, current_user: CurrentUserDep):
+async def update(
+    user_id: int, user_in: UserUpdate, session: SessionDep, current_user: CurrentUserDep
+):
     """Endpoint para actualizar un usuario existente."""
     service = UserService(session)
-    return await service.update(user_id, user_in, current_user.id)
+    return await service.update(user_id, user_in, current_user)
+
 
 @router.delete("/{user_id}", status_code=204)
 async def delete(user_id: int, session: SessionDep, current_user: CurrentUserDep):
     """Endpoint para eliminar un usuario."""
     service = UserService(session)
-    await service.delete(user_id, current_user.id)
+    await service.delete(user_id, current_user)

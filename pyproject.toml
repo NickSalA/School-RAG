@@ -8,5 +8,4 @@ disable = ["C0115"]
 max-line-length = 400
 
 [tool.pytest.ini_options]
-env_files = ".test.env"
 testpaths = ["tests"]
