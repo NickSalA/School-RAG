@@ -16,12 +16,13 @@ class FeedbackService:
         self.feedback_repository = FeedbackRepository(session)
         self.conversation_service = ConversationService(session)
 
-    async def create(self, feedback_in: FeedbackCreate) -> None:
+    async def create(self, feedback_in: FeedbackCreate) -> FeedbackRead:
         """Crea un nuevo feedback."""
         conversation = await self.conversation_service.get(feedback_in.conversation_id)
         if conversation is None:
             raise NotFoundException(f"Conversación con ID {feedback_in.conversation_id} no encontrada")
-        await self.feedback_repository.create(feedback_in)
+        feedback = await self.feedback_repository.create(feedback_in)
+        return FeedbackRead.model_validate(feedback)
 
     async def get(self, feedback_id: int) -> FeedbackRead:
         """Obtiene un feedback por su ID."""
