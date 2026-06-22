@@ -35,3 +35,10 @@ class FeedbackService:
         """Obtiene todo el feedback registrado."""
         feedbacks = await self.feedback_repository.get_all()
         return [FeedbackRead.model_validate(feedback) for feedback in feedbacks]
+
+    async def get_by_conversation(self, conversation_id: int) -> FeedbackRead | None:
+        """Obtiene un feedback por ID de conversación, o None si no existe."""
+        feedback = await self.feedback_repository.get_by_conversation(conversation_id)
+        if feedback is None:
+            return None
+        return FeedbackRead.model_validate(feedback)

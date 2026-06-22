@@ -45,3 +45,14 @@ async def create(
     """Endpoint para crear un nuevo feedback."""
     service = FeedbackService(session)
     return await service.create(feedback_in)
+
+
+@router.get("/by-conversation/{conversation_id}", response_model=FeedbackRead | None)
+async def get_by_conversation(
+    conversation_id: int,
+    session: SessionDep,
+    current_user: CurrentUserDep,
+):
+    """Obtiene un feedback por ID de conversación, o null si no existe."""
+    service = FeedbackService(session)
+    return await service.get_by_conversation(conversation_id)
