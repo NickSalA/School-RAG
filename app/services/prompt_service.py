@@ -14,6 +14,18 @@ from app.schemas import LogCreate
 from app.repositories import PromptRepository, LogRepository
 
 from app.exceptions.database import NotFoundException
+from app.exceptions.base import ConflictError, ValidationError
+
+
+def _parse_version(version_name: str) -> tuple[int, int, int]:
+    """Parsea una versión en formato X.Y.Z y la retorna como tupla de enteros."""
+    parts = version_name.split(".")
+    if len(parts) != 3:
+        raise ValueError("El formato de versión debe ser X.Y.Z (ej: 26.1.0)")
+    try:
+        return tuple(int(p) for p in parts)  # type: ignore[return-value]
+    except ValueError:
+        raise ValueError("La versión debe contener solo números separados por puntos (ej: 26.1.0)")
 
 
 class PromptService:
@@ -44,12 +56,26 @@ class PromptService:
 
     async def create(self, prompt_in: PromptCreate, current_user_id: int) -> PromptRead:
         """Crea un nuevo prompt."""
+        existing = await self.prompt_repo.get_by_version_name(prompt_in.version_name)
+        if existing:
+            raise ConflictError(f"Ya existe un prompt con la versión {prompt_in.version_name}")
+
+        active_prompt = await self.prompt_repo.get_active_prompt()
+        if active_prompt and active_prompt.version_name != "default":
+            try:
+                new_version = _parse_version(prompt_in.version_name)
+                current_version = _parse_version(active_prompt.version_name)
+                if new_version <= current_version:
+                    raise ValidationError(
+                        f"La nueva versión ({prompt_in.version_name}) debe ser superior a la versión activa actual ({active_prompt.version_name})"
+                    )
+            except ValueError as e:
+                raise ValidationError(str(e))
+
         old_prompt = None
         old_state = None
 
         if prompt_in.is_active:
-            active_prompt = await self.prompt_repo.get_active_prompt()
-
             if active_prompt:
                 await self.prompt_repo.deactivate_other_prompts()
                 old_prompt = PromptRead.model_validate(active_prompt)
@@ -100,6 +126,25 @@ class PromptService:
             raise NotFoundException(f"Prompt con ID {prompt_id} no encontrado")
 
         updated_data = prompt_in.model_dump(exclude_unset=True)
+
+        if "version_name" in updated_data:
+            new_version_name = updated_data["version_name"]
+
+            existing = await self.prompt_repo.get_by_version_name(new_version_name)
+            if existing and existing.id != prompt_id:
+                raise ConflictError(f"Ya existe un prompt con la versión {new_version_name}")
+
+            active_prompt = await self.prompt_repo.get_active_prompt()
+            if active_prompt and active_prompt.version_name != "default":
+                try:
+                    new_version = _parse_version(new_version_name)
+                    current_version = _parse_version(active_prompt.version_name)
+                    if new_version <= current_version:
+                        raise ValidationError(
+                            f"La nueva versión ({new_version_name}) debe ser superior a la versión activa actual ({active_prompt.version_name})"
+                        )
+                except ValueError as e:
+                    raise ValidationError(str(e))
 
         before_state = {
             field: getattr(prompt_obj, field) for field in updated_data.keys()

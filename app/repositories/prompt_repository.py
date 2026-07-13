@@ -23,6 +23,12 @@ class PromptRepository(BaseRepository[Prompt, PromptCreate, PromptUpdate]):
         result = await self.session.exec(query)
         return result.first()
 
+    async def get_by_version_name(self, version_name: str) -> Prompt | None:
+        """Obtiene un prompt por su nombre de versión."""
+        query = select(self.model).where(self.model.version_name == version_name)
+        result = await self.session.exec(query)
+        return result.first()
+
     async def deactivate_other_prompts(
         self, active_prompt_id: int | None = None
     ) -> None:
